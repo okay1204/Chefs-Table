@@ -1,44 +1,53 @@
-const path = require("path");
+const path = require('path');
 
-const { app, BrowserWindow } = require("electron");
-const isDev = require("electron-is-dev");
+const { app, ipcMain, BrowserWindow } = require('electron');
+const isDev = require('electron-is-dev');
+const fs = require('fs').promises;
+const { v4: uuidv4 } = require('uuid')
+const { exception } = require('console');
 
 // Conditionally include the dev tools installer to load React Dev Tools
 let installExtension, REACT_DEVELOPER_TOOLS;
 
 if (isDev) {
-  const devTools = require("electron-devtools-installer");
+  const devTools = require('electron-devtools-installer');
   installExtension = devTools.default;
   REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS;
 }
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling
-if (require("electron-squirrel-startup")) {
+if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
 function createWindow() {
-  // Create the browser window.
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    // Create the browser window.
+    const win = new BrowserWindow({
+    width: 1000,
+    height: 800,
     webPreferences: {
-      nodeIntegration: true
+        nodeIntegration: true,
+        contextIsolation: false
     }
-  });
+    });
 
-  // and load the index.html of the app.
-  // win.loadFile("index.html");
-  win.loadURL(
+    // and load the index.html of the app.
+    // win.loadFile('index.html');
+    win.loadURL(
     isDev
-      ? "http://localhost:3000"
-      : `file://${path.join(__dirname, "../build/index.html")}`
-  );
+        ? 'http://localhost:3000'
+        : `file://${path.join(__dirname, '../build/index.html')}`
+    );
 
-  // Open the DevTools.
-  if (isDev) {
-    win.webContents.openDevTools({ mode: "detach" });
-  }
+    // Open the DevTools.
+    if (isDev) {
+        win.webContents.on("did-frame-finish-load", () => {
+            win.webContents.once("devtools-opened", () => {
+                win.focus();
+            });
+            win.webContents.openDevTools();
+        });
+    }
 }
 
 // This method will be called when Electron has finished
@@ -57,13 +66,13 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on("activate", () => {
+app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
@@ -71,5 +80,57 @@ app.on("activate", () => {
   }
 });
 
+let RECIPES_PATH = ''
+
+if (isDev) {
+    RECIPES_PATH = path.join(path.dirname(__dirname), 'dev', 'recipes.json');
+} else {
+    RECIPES_PATH = path.join(app.getPath('userData'), 'recipes.json');
+}
+
+async function readRecipes() {
+
+    let recipes = null
+
+    try {
+        recipes = JSON.parse(await fs.readFile(RECIPES_PATH, 'utf8'));
+    } catch (error) {
+        // file not found
+        if (error.code === 'ENOENT') {
+            await fs.writeFile(RECIPES_PATH, '[]')
+            recipes = [];
+        } else {
+            throw error;
+        }
+    }
+
+    return recipes;
+}
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+ipcMain.handle('recipes:read', readRecipes);
+
+ipcMain.handle('recipes:add', async (event, newRecipe) => {
+    let recipes = await readRecipes();
+
+    newRecipe.id = uuidv4()
+    recipes.push(newRecipe);
+    await fs.writeFile(RECIPES_PATH, JSON.stringify(recipes, null, 2));
+
+    return recipes
+})
+
+ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
+    let recipes = await readRecipes();
+
+    recipes = recipes.filter(recipe => recipe.id != recipeIdToRemove)
+    await fs.writeFile(RECIPES_PATH, JSON.stringify(recipes, null, 2));
+
+    return recipes
+})
+
+ipcMain.handle('recipes:clear', async () => {
+
+    await fs.writeFile(RECIPES_PATH, '[]');
+    return []
+})
