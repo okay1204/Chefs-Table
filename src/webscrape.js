@@ -45,55 +45,36 @@ class WebScrape {
     }
 
     static async allRecipes(url) {
-        const result = {
-            url
-        };
-
         const response = await axios.get(url);
-
         const root = HTMLParser.parse(response.data);
-        let data = JSON.parse(root.querySelector('script').rawText)[1];
+        const data = JSON.parse(root.querySelector('script').rawText)[1];
 
-        let name = data.name;
-
+        const name = data.name;
         const protein = this.proteinFromName(name);
 
-        const recipeData = {
+        return {
+            url,
             image_url: data.image.url,
             name,
             protein
         };
-        
-        Object.assign(result, recipeData);
-
-        return result;
     }
 
     static async nyTimes(url) {
 
-        const result = {
-            url
-        };
 
         const response = await axios.get(url);
-
         const root = HTMLParser.parse(response.data);
 
         const name = root.querySelector('.recipe-title').rawText.trim()
-
-        let image_url = root.querySelector('.recipe-intro .media-container picture img').attributes.src
-
+        const image_url = root.querySelector('.recipe-intro .media-container picture img').attributes.src
         const protein = this.proteinFromName(name);
 
-        const recipeData = {
+        return {
+            url,
             image_url,
             name,
             protein
         };
-        
-        Object.assign(result, recipeData);
-
-
-        return result;
     }
 }
