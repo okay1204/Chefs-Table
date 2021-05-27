@@ -1,6 +1,21 @@
 :root {
-    --dark-gray: #292828;
+    --space-cadet: #2b2d42ff;
+    --lavender-blue: #c6caedff;
+    --columbia-blue: #c1dbe3ff;
+    --emerald: #16c172ff;
+    --deep-jungle-green: #214f4bff;
 }
+
+.App {
+    display: flex;
+    flex-direction: column;
+}
+
+.MainBody {
+    flex-grow: 1;
+}
+
+/* General styling */
 
 * {
   box-sizing: border-box;
@@ -8,11 +23,60 @@
 }
 
 body {
-    height: 100vh;
-    background-color: var(--dark-gray);
+    background-color: var(--deep-jungle-green);
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 300;
 }
 
-.recipes-title {
-    font-size: 60px;
-    color: #95a9d4;
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    color: var(--emerald);
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+.center-image-in-text {
+    display: flex;
+    align-items: center;
+}
+
+.center-image-in-text img {
+    margin: 0 5px;
+}
+
+button {
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+}
+
+/* Specific Styling */
+
+.add-recipe-button-wrapper {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.inline-add-circle-icon {
+    width: 30px;
+}
+
+/* Fonts */
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./fonts/Montserrat-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Work Sans';
+    src: url('./fonts/WorkSans-VariableFont_wght.ttf');
 }

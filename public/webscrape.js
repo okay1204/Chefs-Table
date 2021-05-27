@@ -118,3 +118,5 @@ class WebScrape {
 // WebScrape.getRecipeData('https://cdn2.greenchef.com/uploaded/60955cf63f1611001489a41c.pdf').then((result) => {
 //     console.log(result)
 // })
+
+module.exports = { WebScrape };

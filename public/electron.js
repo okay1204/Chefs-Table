@@ -4,6 +4,7 @@ const { app, ipcMain, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
+const WebScrape = require('./webscrape');
 const { exception } = require('console');
 
 // Conditionally include the dev tools installer to load React Dev Tools
@@ -27,9 +28,15 @@ function createWindow() {
     height: 800,
     webPreferences: {
         nodeIntegration: true,
-        contextIsolation: false
+        contextIsolation: false,
+        devTools: isDev ? true : false
     }
     });
+
+    // Hide top menu bar during production
+    if (!isDev) {
+        win.setMenuBarVisibility(false)
+    }
 
     // and load the index.html of the app.
     // win.loadFile('index.html');
@@ -80,7 +87,7 @@ app.on('activate', () => {
   }
 });
 
-let RECIPES_PATH = ''
+let RECIPES_PATH;
 
 if (isDev) {
     RECIPES_PATH = path.join(path.dirname(__dirname), 'dev', 'recipes.json');
@@ -130,7 +137,6 @@ ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
 })
 
 ipcMain.handle('recipes:clear', async () => {
-
     await fs.writeFile(RECIPES_PATH, '[]');
     return [];
 })
