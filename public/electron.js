@@ -3,7 +3,7 @@ const path = require('path');
 const { app, ipcMain, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const fs = require('fs').promises;
-const { v4: uuidv4 } = require('uuid')
+const { v4: uuidv4 } = require('uuid');
 const { exception } = require('console');
 
 // Conditionally include the dev tools installer to load React Dev Tools
@@ -113,24 +113,24 @@ ipcMain.handle('recipes:read', readRecipes);
 ipcMain.handle('recipes:add', async (event, newRecipe) => {
     let recipes = await readRecipes();
 
-    newRecipe.id = uuidv4()
+    newRecipe.id = uuidv4();
     recipes.push(newRecipe);
     await fs.writeFile(RECIPES_PATH, JSON.stringify(recipes, null, 2));
 
-    return recipes
+    return recipes;
 })
 
 ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
     let recipes = await readRecipes();
 
-    recipes = recipes.filter(recipe => recipe.id != recipeIdToRemove)
+    recipes = recipes.filter(recipe => recipe.id != recipeIdToRemove);
     await fs.writeFile(RECIPES_PATH, JSON.stringify(recipes, null, 2));
 
-    return recipes
+    return recipes;
 })
 
 ipcMain.handle('recipes:clear', async () => {
 
     await fs.writeFile(RECIPES_PATH, '[]');
-    return []
+    return [];
 })
