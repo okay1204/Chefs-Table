@@ -4,7 +4,7 @@ const { app, ipcMain, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
-const WebScrape = require('./webscrape');
+const WebScrape = require('../src/webscrape');
 const { exception } = require('console');
 
 // Conditionally include the dev tools installer to load React Dev Tools
@@ -100,15 +100,22 @@ async function readRecipes() {
     let recipes = null
 
     try {
-        recipes = JSON.parse(await fs.readFile(RECIPES_PATH, 'utf8'));
+        recipes = await fs.readFile(RECIPES_PATH, 'utf8');
     } catch (error) {
         // file not found
         if (error.code === 'ENOENT') {
-            await fs.writeFile(RECIPES_PATH, '[]')
-            recipes = [];
+            await fs.writeFile(RECIPES_PATH, '[]');
+            recipes = '[]';
         } else {
             throw error;
         }
+    }
+
+    try {
+        recipes = JSON.parse(recipes);
+    } catch {
+        await fs.writeFile(RECIPES_PATH, '[]');
+        recipes = [];
     }
 
     return recipes;
