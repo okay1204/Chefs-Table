@@ -1,9 +1,9 @@
 :root {
-    --space-cadet: #2b2d42ff;
-    --lavender-blue: #c6caedff;
-    --columbia-blue: #c1dbe3ff;
-    --emerald: #16c172ff;
     --deep-jungle-green: #214f4bff;
+    --emerald: #16c172ff;
+    --tint-of-green: #dee4e1;
+    --medium-slate-blue: #8884ffff;
+    --sky-blue-crayola: #7ee8faff;
 }
 
 .App {
@@ -20,6 +20,7 @@
 * {
   box-sizing: border-box;
   text-align: center;
+  outline: none;
 }
 
 body {
@@ -58,15 +59,9 @@ button {
     border: none;
 }
 
-/* Specific Styling */
-
-.add-recipe-button-wrapper {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.inline-add-circle-icon {
-    width: 30px;
+input {
+    border: none;
+    background-color: transparent;
 }
 
 /* Fonts */

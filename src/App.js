@@ -14,14 +14,15 @@ function App() {
     const ipcRenderer = new ipcRendererStateManager(rawIpcRenderer, setRecipes);
 
     // initial reading of json
-    ipcRenderer.raw.invoke('recipes:read').then((recipes) => {
+    ipcRenderer.invoke('recipes:read').then((recipes) => {
         setRecipes(JSON.stringify(recipes));
     })
+
 
     return (
         <div className='App'>
 
-            <Header/>
+            <Header ipcRenderer={ipcRenderer}/>
             <Body recipes={recipes} setRecipes={setRecipes} ipcRenderer={ipcRenderer}/>
 
         </div>

@@ -1,6 +1,6 @@
 import AddCircle from '../images/addCircle.png';
 
-function Body({recipes, setRecipes, ipcRenderer}) {
+function Body({recipes, ipcRenderer}) {
 
     return (
         <div className='MainBody body'>

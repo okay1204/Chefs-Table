@@ -1,6 +1,6 @@
-const axios = require('axios');
-const HTMLParser = require('node-html-parser');
-const Url = require('url-parse');
+import axios from 'axios';
+import HTMLParser from 'node-html-parser';
+import Url from 'url-parse';
 
 const ALL_PROTEINS = ['chicken', 'beef', 'veggie', 'fish', 'salmon', 'shrimp'];
 
@@ -43,7 +43,10 @@ class WebScrape {
             //     break;
 
             default:
-                throw Error('Recipe domain not supported')
+                throw Error({
+                    message: 'Recipe domain not supported',
+                    code: 'DOMAIN_UNSUPPORTED'
+                })
         }
 
         return result;
@@ -83,40 +86,40 @@ class WebScrape {
         };
     }
 
-    static async greenChef(url) {
+    // static async greenChef(url) {
 
-        const parsedUrl = new Url(url);
+    //     const parsedUrl = new Url(url);
 
-        if (parsedUrl.hostname === 'www.greenchef.com') {
-            const response = await axios.get(url);
-            const root = HTMLParser.parse(response.data);
+    //     if (parsedUrl.hostname === 'www.greenchef.com') {
+    //         const response = await axios.get(url);
+    //         const root = HTMLParser.parse(response.data);
 
-            let recipeCardLink = root
-            .querySelector('a.jsx-3718205992.jsx-2719391612.jsx-3844972933.jsx-2085888330.jsx-2085888330')
-            .attributes.href;
+    //         let recipeCardLink = root
+    //         .querySelector('a.jsx-3718205992.jsx-2719391612.jsx-3844972933.jsx-2085888330.jsx-2085888330')
+    //         .attributes.href;
 
-            recipeCardLink = recipeCardLink.replace('////', '//');
-            url = recipeCardLink;
-        }
+    //         recipeCardLink = recipeCardLink.replace('////', '//');
+    //         url = recipeCardLink;
+    //     }
         
 
-        const response = await axios.get(url, {
-            headers: {
-                'Content-Type': 'text/pdf'
-            }
-        });
-        const root = HTMLParser.parse(response.data);
+    //     const response = await axios.get(url, {
+    //         headers: {
+    //             'Content-Type': 'text/pdf'
+    //         }
+    //     });
+    //     const root = HTMLParser.parse(response.data);
     
-        const fs = require('fs');
-        fs.writeFileSync('./test.pdf', response.data);
+    //     const fs = require('fs');
+    //     fs.writeFileSync('./test.pdf', response.data);
 
-        delete response.data;
-        console.log(response);
-    }
+    //     delete response.data;
+    //     console.log(response);
+    // }
 }
 
 // WebScrape.getRecipeData('https://cdn2.greenchef.com/uploaded/60955cf63f1611001489a41c.pdf').then((result) => {
 //     console.log(result)
 // })
 
-module.exports = { WebScrape };
+export default WebScrape;
