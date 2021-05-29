@@ -4,6 +4,24 @@ import Url from 'url-parse';
 
 const ALL_PROTEINS = ['chicken', 'beef', 'veggie', 'fish', 'salmon', 'shrimp'];
 
+class DomainUnsupportedError extends Error {
+    constructor(message) {
+        super(message);
+        Error.captureStackTrace(this, this.constructor);
+
+        this.code = 'DOMAIN_UNSUPPORTED'
+    }
+}
+
+class DomainRequestError extends Error {
+    constructor(message) {
+        super(message);
+        Error.captureStackTrace(this, this.constructor);
+
+        this.code = 'DOMAIN_REQUEST_ERROR'
+    }
+}
+
 class WebScrape {
 
     static proteinFromName(name) {
@@ -25,6 +43,18 @@ class WebScrape {
         return protein;
     }
 
+    static async getResponse(url, options = {}) {
+        try {
+            return await axios.get(url, options)
+        } catch {
+            throw new DomainRequestError('Request to URL failed')
+        }
+
+    }
+
+
+
+
     static async getRecipeData(url) {
         const parsedUrl = new Url(url);
 
@@ -43,17 +73,14 @@ class WebScrape {
             //     break;
 
             default:
-                throw Error({
-                    message: 'Recipe domain not supported',
-                    code: 'DOMAIN_UNSUPPORTED'
-                })
+                throw new DomainUnsupportedError('Recipe domain not supported');
         }
 
         return result;
     }
 
     static async allRecipes(url) {
-        const response = await axios.get(url);
+        const response = await this.getResponse(url);
         const root = HTMLParser.parse(response.data);
         const data = JSON.parse(root.querySelector('script').rawText)[1];
 
@@ -71,7 +98,7 @@ class WebScrape {
     static async nyTimes(url) {
 
 
-        const response = await axios.get(url);
+        const response = await this.getResponse(url);
         const root = HTMLParser.parse(response.data);
 
         const name = root.querySelector('.recipe-title').rawText.trim()
@@ -91,7 +118,7 @@ class WebScrape {
     //     const parsedUrl = new Url(url);
 
     //     if (parsedUrl.hostname === 'www.greenchef.com') {
-    //         const response = await axios.get(url);
+    //         const response = await this.getResponse(url);
     //         const root = HTMLParser.parse(response.data);
 
     //         let recipeCardLink = root
@@ -103,7 +130,7 @@ class WebScrape {
     //     }
         
 
-    //     const response = await axios.get(url, {
+    //     const response = await this.getResponse(url, {
     //         headers: {
     //             'Content-Type': 'text/pdf'
     //         }
@@ -122,4 +149,4 @@ class WebScrape {
 //     console.log(result)
 // })
 
-export default WebScrape;
+export { WebScrape, DomainUnsupportedError, DomainRequestError };
