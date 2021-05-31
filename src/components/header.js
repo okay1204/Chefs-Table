@@ -4,23 +4,17 @@ import React from 'react';
 import ClickOutside from '../components/clickOutside.js';
 import AddCircle from '../images/addCircle.png';
 
-import WebScrape from '../webscrape.js';
 
 function Header({ipcRenderer}) {
 
     function addRecipe(event) {
         if (event.key === 'Enter') {
-            WebScrape.getRecipeData(event.target.value)
+            ipcRenderer.recipes.webscrape(event.target.value)
             .then((recipeData) => {
                 console.log(recipeData);
             })
             .catch((error) => {
-                console.log(error.code)
-                if (error.code === 'DOMAIN_UNSUPPORTED') {
-                    console.log('domain unsupported');
-                } else {
-                    console.log('something went wrong');
-                }
+                console.log(error.code);
             });
         };
     }

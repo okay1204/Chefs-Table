@@ -1,6 +1,6 @@
-import axios from 'axios';
-import HTMLParser from 'node-html-parser';
-import Url from 'url-parse';
+const axios = require('axios');
+const HTMLParser = require('node-html-parser');
+const Url = require('url-parse');
 
 const ALL_PROTEINS = ['chicken', 'beef', 'veggie', 'fish', 'salmon', 'shrimp'];
 
@@ -149,4 +149,8 @@ class WebScrape {
 //     console.log(result)
 // })
 
-export { WebScrape, DomainUnsupportedError, DomainRequestError };
+// WebScrape.getRecipeData('https://cooking.nytimes.com/recipes/1022171-pistachio-biscotti').then((result) => {
+//     console.log(result)
+// })
+
+module.exports = { WebScrape, DomainUnsupportedError, DomainRequestError };

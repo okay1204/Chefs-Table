@@ -13,9 +13,19 @@ class Recipes {
         this.setRecipes = setRecipes;
     }
 
+    async webscrape(url) {
+        const recipeData = await this.ipcRenderer.invoke('recipes:webscrape', url)
+
+        if (!recipeData.error) {
+            return recipeData.data;
+        } else {
+            return Promise.reject(recipeData.error);
+        }
+    }
+
     async add(recipe) {
         return this.ipcRenderer.invoke('recipes:add', recipe)
-        .then((newRecipes) => this.setRecipes(newRecipes));
+        .then((newRecipes) => {this.setRecipes(newRecipes)});
     }
 
     async remove(recipeId) {

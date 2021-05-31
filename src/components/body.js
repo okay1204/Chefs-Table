@@ -17,10 +17,10 @@ function Body({recipes, ipcRenderer}) {
             <span style={{color: 'white'}}>{String(recipes)}</span>
 
             <button onClick={() => {
-                ipcRenderer.recipes.add({id: 1, name: 'Some good pasta'})
+                ipcRenderer.recipes.add({name: 'Some good pasta'})
             }}>add</button>
             <button onClick={() => {
-                ipcRenderer.recipes.remove('d9690108-d917-4e29-a4bf-0f000de9d453')
+                ipcRenderer.recipes.remove('51fc18d5-b8f2-49b5-a687-a3215a679d58')
             }}>remove</button>
             <button onClick={() => {
                 ipcRenderer.recipes.clear()

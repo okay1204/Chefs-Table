@@ -4,8 +4,8 @@ const { app, ipcMain, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
-const WebScrape = require('../src/webscrape');
 const { exception } = require('console');
+const { WebScrape, DomainUnsupportedError, DomainRequestError } = require('./webscrape.js')
 
 // Conditionally include the dev tools installer to load React Dev Tools
 let installExtension, REACT_DEVELOPER_TOOLS;
@@ -132,6 +132,23 @@ ipcMain.handle('recipes:add', async (event, newRecipe) => {
     await fs.writeFile(RECIPES_PATH, JSON.stringify(recipes, null, 2));
 
     return recipes;
+})
+
+ipcMain.handle('recipes:webscrape', async (event, url) => {
+
+    try {
+        return {
+            error: null,
+            data: await WebScrape.getRecipeData(url)
+        };
+    } catch (error) {
+        return {
+            error: {
+                message: error.message,
+                code: error.code
+            }
+        };
+    }
 })
 
 ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
