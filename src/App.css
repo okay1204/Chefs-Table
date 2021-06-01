@@ -1,12 +1,11 @@
 :root {
-    --emerald: #16c172ff;
-    --deep-jungle-green: #214f4bff;
-    --tint-of-green: #dee4e1;
-    --medium-slate-blue: #8884ffff;
-    --sky-blue-crayola: #7ee8faff;
     --background: #d1d1d1;
     --foreground: #000000;
-
+    --primary-bright: #16c172ff;
+    --primary-dark: #214f4bff;
+    --primary-background: #dee4e1;
+    --secondary-bright: #7ee8faff;
+    --secondary-dark: #8884ffff;
 }
 
 .App {
