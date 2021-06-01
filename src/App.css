@@ -1,9 +1,12 @@
 :root {
-    --deep-jungle-green: #214f4bff;
     --emerald: #16c172ff;
+    --deep-jungle-green: #214f4bff;
     --tint-of-green: #dee4e1;
     --medium-slate-blue: #8884ffff;
     --sky-blue-crayola: #7ee8faff;
+    --background: #d1d1d1;
+    --foreground: #000000;
+
 }
 
 .App {
@@ -24,7 +27,7 @@
 }
 
 body {
-    background-color: var(--deep-jungle-green);
+    background-color: var(--background);
     font-family: 'Work Sans', sans-serif;
     font-weight: 300;
 }
@@ -32,7 +35,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
-    color: var(--emerald);
+    color: var(--foreground);
 }
 
 .center {

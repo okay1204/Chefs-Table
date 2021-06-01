@@ -2,7 +2,7 @@ import '../styles/header.css';
 import React from 'react';
 
 import ClickOutside from '../components/clickOutside.js';
-import AddCircle from '../images/addCircle.png';
+import AddCircleEmerald from '../images/addCircleEmerald.png';
 
 
 function Header({ipcRenderer}) {
@@ -34,7 +34,7 @@ function Header({ipcRenderer}) {
         <div className='Header'>
             <div className='add-recipe-button-wrapper'>
                 <button className='add-recipe-button' onClick={() => setCreateBox(!createBox)}>
-                    <img src={AddCircle} alt='Add a new recipe' />
+                    <img src={AddCircleEmerald} alt='Add a new recipe' />
                 </button>
             </div>
 
