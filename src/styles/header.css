@@ -17,7 +17,7 @@
     width: 30px;
 }
 
-.create-box {
+.mini-create-box {
     position: absolute;
     right: 10px;
     padding: 10px;
@@ -26,11 +26,18 @@
     background-color: var(--tint-of-green);
 }
 
-.create-box-title {
+.mini-create-box-title {
     font-size: 20px;
 }
 
-.create-box-url-input {
+.mini-create-box-url-input {
     margin: 10px 0;
+    font-size: 15px;
+}
+
+.mini-create-box-error {
+    color: red;
+    display: block;
+    margin: 10px;
     font-size: 15px;
 }
