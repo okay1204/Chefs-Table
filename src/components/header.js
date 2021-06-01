@@ -19,7 +19,7 @@ function Header({ipcRenderer}) {
                 } else if (error.code === 'DOMAIN_REQUEST_ERROR') {
                     setError('Failed request, is the website down?');
                 } else {
-                    setError('Invalid recipe URL')
+                    setError('Invalid recipe URL');
                 }
             });
         } else {
