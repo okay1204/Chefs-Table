@@ -9,7 +9,7 @@ class DomainUnsupportedError extends Error {
         super(message);
         Error.captureStackTrace(this, this.constructor);
 
-        this.code = 'DOMAIN_UNSUPPORTED'
+        this.code = 'DOMAIN_UNSUPPORTED';
     }
 }
 
@@ -18,7 +18,7 @@ class DomainRequestError extends Error {
         super(message);
         Error.captureStackTrace(this, this.constructor);
 
-        this.code = 'DOMAIN_REQUEST_ERROR'
+        this.code = 'DOMAIN_REQUEST_ERROR';
     }
 }
 
@@ -89,8 +89,8 @@ class WebScrape {
 
         return {
             url,
-            image_url: data.image.url,
             name,
+            image_url: data.image.url,
             protein
         };
     }
@@ -107,8 +107,8 @@ class WebScrape {
 
         return {
             url,
-            image_url,
             name,
+            image_url,
             protein
         };
     }

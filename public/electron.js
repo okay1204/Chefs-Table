@@ -5,20 +5,21 @@ const isDev = require('electron-is-dev');
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 const { exception } = require('console');
-const { WebScrape, DomainUnsupportedError, DomainRequestError } = require('./webscrape.js')
+const { WebScrape } = require('./webscrape.js');
+const Database = require('better-sqlite3');
 
 // Conditionally include the dev tools installer to load React Dev Tools
 let installExtension, REACT_DEVELOPER_TOOLS;
 
 if (isDev) {
-  const devTools = require('electron-devtools-installer');
-  installExtension = devTools.default;
-  REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS;
+    const devTools = require('electron-devtools-installer');
+    installExtension = devTools.default;
+    REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS;
 }
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling
 if (require('electron-squirrel-startup')) {
-  app.quit();
+    app.quit();
 }
 
 function createWindow() {
@@ -61,77 +62,62 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  createWindow();
+    createWindow();
 
-  if (isDev) {
+    if (isDev) {
     installExtension(REACT_DEVELOPER_TOOLS)
-      .then(name => console.log(`Added Extension:  ${name}`))
-      .catch(error => console.log(`An error occurred: , ${error}`));
-  }
+        .then(name => console.log(`Added Extension:  ${name}`))
+        .catch(error => console.log(`An error occurred: , ${error}`));
+    }
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+    db.close();
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
 
 app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+    }
 });
 
-let RECIPES_PATH;
+const DATABASE_PATH = isDev ?
+path.join(path.dirname(__dirname), 'dev', 'chefs-table.db')
+:
+path.join(app.getPath('userData'), 'chefs-table.db');
 
-if (isDev) {
-    RECIPES_PATH = path.join(path.dirname(__dirname), 'dev', 'recipes.json');
-} else {
-    RECIPES_PATH = path.join(app.getPath('userData'), 'recipes.json');
-}
+const db = new Database(DATABASE_PATH);
 
-async function readRecipes() {
+// set up all tables
+db.prepare('CREATE TABLE IF NOT EXISTS recipes (id TEXT PRIMARY KEY, name TEXT, image_url TEXT, protien TEXT);').run();
 
-    let recipes = null
 
-    try {
-        recipes = await fs.readFile(RECIPES_PATH, 'utf8');
-    } catch (error) {
-        // file not found
-        if (error.code === 'ENOENT') {
-            await fs.writeFile(RECIPES_PATH, '[]');
-            recipes = '[]';
-        } else {
-            throw error;
-        }
-    }
 
-    try {
-        recipes = JSON.parse(recipes);
-    } catch {
-        await fs.writeFile(RECIPES_PATH, '[]');
-        recipes = [];
-    }
 
-    return recipes;
-}
+
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-ipcMain.handle('recipes:read', readRecipes);
+ipcMain.handle('recipes:read', async (event, newRecipe) => {
+    return db.prepare('SELECT * FROM recipes;').all();
+});
 
 ipcMain.handle('recipes:add', async (event, newRecipe) => {
-    let recipes = await readRecipes();
-
     newRecipe.id = uuidv4();
-    recipes.push(newRecipe);
-    await fs.writeFile(RECIPES_PATH, JSON.stringify(recipes, null, 2));
+    
+    const columns = Object.keys(newRecipe).join(', ');
+    const values = new Array(Object.values(newRecipe).length + 1).join('?').split('').join(', ');
 
-    return recipes;
+    db.prepare(`INSERT INTO recipes (${columns}) VALUES (${values});`).run(...Object.values(newRecipe));
+
+    return newRecipe;
 })
 
 ipcMain.handle('recipes:webscrape', async (event, url) => {
@@ -152,15 +138,14 @@ ipcMain.handle('recipes:webscrape', async (event, url) => {
 })
 
 ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
-    let recipes = await readRecipes();
+    const removedRecipe = db.prepare('SELECT * FROM recipes WHERE id = ?;').get(recipeIdToRemove);
+    
+    db.prepare('DELETE FROM recipes WHERE id = ?;').run(recipeIdToRemove);
 
-    recipes = recipes.filter(recipe => recipe.id != recipeIdToRemove);
-    await fs.writeFile(RECIPES_PATH, JSON.stringify(recipes, null, 2));
-
-    return recipes;
+    return removedRecipe;
 })
 
 ipcMain.handle('recipes:clear', async () => {
-    await fs.writeFile(RECIPES_PATH, '[]');
+    db.prepare('DELETE FROM recipes;').run();
     return [];
 })

@@ -1,13 +1,15 @@
 class ipcRendererStateManager {
-    constructor(ipcRenderer, setRecipes) {
-        this.invoke = ipcRenderer.invoke;
 
+    initialize(ipcRenderer, setRecipes) {
+        this.invoke = ipcRenderer.invoke;
+        this.ipcRenderer = ipcRenderer;
         this.setRecipes = setRecipes;
         this.recipes = new Recipes(ipcRenderer, setRecipes);
     }
 };
 
 class Recipes {
+
     constructor(ipcRenderer, setRecipes) {
         this.ipcRenderer = ipcRenderer;
         this.setRecipes = setRecipes;
@@ -23,14 +25,22 @@ class Recipes {
         }
     }
 
-    async add(recipe) {
-        return this.ipcRenderer.invoke('recipes:add', recipe)
-        .then((newRecipes) => {this.setRecipes(newRecipes)});
+    async add(recipes, newRecipe) {
+        return this.ipcRenderer.invoke('recipes:add', newRecipe)
+        .then(newRecipe => {
+            this.setRecipes(
+                recipes.concat([newRecipe])
+            )
+        });
     }
 
-    async remove(recipeId) {
+    async remove(recipes, recipeId) {
         return this.ipcRenderer.invoke('recipes:remove', recipeId)
-        .then((newRecipes) => this.setRecipes(newRecipes));
+        .then(removedRecipe => {
+            this.setRecipes(
+                [...recipes].filter(recipe => recipe.id !== recipeId)
+            );
+        });
     }
 
     async clear() {
@@ -39,4 +49,4 @@ class Recipes {
     }
 }
 
-export default ipcRendererStateManager;
+export default new ipcRendererStateManager();

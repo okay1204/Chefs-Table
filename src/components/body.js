@@ -5,7 +5,7 @@ function Body({recipes, ipcRenderer}) {
     return (
         <div className='MainBody body'>
             {
-                recipes && recipes.length > 0 && 
+                recipes && recipes.length === 0 && 
                 <div className='center'>
                         <h2>Looks like you don't have any recipes!</h2>
                         <div className='center-image-in-text'>
@@ -14,13 +14,13 @@ function Body({recipes, ipcRenderer}) {
                 </div>
             }
 
-            <span style={{color: 'white'}}>{String(recipes)}</span>
+            <span style={{color: 'white'}}>{JSON.stringify(recipes)}</span>
 
             <button onClick={() => {
-                ipcRenderer.recipes.add({name: 'Some good pasta'})
+                ipcRenderer.recipes.add(recipes, {name: 'Some good pasta'})
             }}>add</button>
             <button onClick={() => {
-                ipcRenderer.recipes.remove('51fc18d5-b8f2-49b5-a687-a3215a679d58')
+                ipcRenderer.recipes.remove(recipes, '51fc18d5-b8f2-49b5-a687-a3215a679d58')
             }}>remove</button>
             <button onClick={() => {
                 ipcRenderer.recipes.clear()

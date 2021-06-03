@@ -10,12 +10,15 @@ const { ipcRenderer: rawIpcRenderer } = window.require('electron');
 
 function App() {
 
-    const [recipes, setRecipes] = React.useState(null);
-    const ipcRenderer = new ipcRendererStateManager(rawIpcRenderer, setRecipes);
+    const [recipes, setRecipes] = React.useState([]);
+    const ipcRenderer = ipcRendererStateManager;
+    ipcRenderer.initialize(rawIpcRenderer, setRecipes);
 
-    // initial reading of json
+
+    // initial reading of db
     ipcRenderer.invoke('recipes:read').then((recipes) => {
-        setRecipes(JSON.stringify(recipes));
+        // setRecipes(recipes);
+        console.log(recipes)
     })
 
 
@@ -23,7 +26,7 @@ function App() {
         <div className='App'>
 
             <Header ipcRenderer={ipcRenderer}/>
-            <Body recipes={recipes} setRecipes={setRecipes} ipcRenderer={ipcRenderer}/>
+            <Body recipes={recipes} ipcRenderer={ipcRenderer}/>
 
         </div>
     );
