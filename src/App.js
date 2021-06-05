@@ -14,12 +14,13 @@ function App() {
     const ipcRenderer = ipcRendererStateManager;
     ipcRenderer.initialize(rawIpcRenderer, setRecipes);
 
-
     // initial reading of db
-    ipcRenderer.invoke('recipes:read').then((recipes) => {
-        // setRecipes(recipes);
-        console.log(recipes)
+    React.useEffect(() => {
+        ipcRenderer.invoke('recipes:read').then((recipes) => {
+            setRecipes(recipes);
+        })
     })
+
 
 
     return (

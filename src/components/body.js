@@ -14,7 +14,7 @@ function Body({recipes, ipcRenderer}) {
                 </div>
             }
 
-            <span style={{color: 'white'}}>{JSON.stringify(recipes)}</span>
+            <span>{JSON.stringify(recipes)}</span>
 
             <button onClick={() => {
                 ipcRenderer.recipes.add(recipes, {name: 'Some good pasta'})

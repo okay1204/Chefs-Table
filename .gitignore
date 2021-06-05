@@ -7,7 +7,7 @@
 
 # testing
 /coverage
-/dev/recipes.json
+/dev/chefs-table.db
 
 # production
 /build

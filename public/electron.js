@@ -3,7 +3,6 @@ const path = require('path');
 const { app, ipcMain, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const fs = require('fs').promises;
-const { v4: uuidv4 } = require('uuid');
 const { exception } = require('console');
 const { WebScrape } = require('./webscrape.js');
 const Database = require('better-sqlite3');
@@ -89,17 +88,14 @@ app.on('activate', () => {
     }
 });
 
-const DATABASE_PATH = isDev ?
-path.join(path.dirname(__dirname), 'dev', 'chefs-table.db')
-:
-path.join(app.getPath('userData'), 'chefs-table.db');
+const DATABASE_PATH = isDev
+? path.join(path.dirname(__dirname), 'dev', 'chefs-table.db')
+: path.join(app.getPath('userData'), 'chefs-table.db');
 
 const db = new Database(DATABASE_PATH);
 
 // set up all tables
-db.prepare('CREATE TABLE IF NOT EXISTS recipes (id TEXT PRIMARY KEY, name TEXT, image_url TEXT, protien TEXT);').run();
-
-
+db.prepare('CREATE TABLE IF NOT EXISTS recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, image_url TEXT, protien TEXT);').run();
 
 
 
@@ -110,12 +106,13 @@ ipcMain.handle('recipes:read', async (event, newRecipe) => {
 });
 
 ipcMain.handle('recipes:add', async (event, newRecipe) => {
-    newRecipe.id = uuidv4();
     
     const columns = Object.keys(newRecipe).join(', ');
     const values = new Array(Object.values(newRecipe).length + 1).join('?').split('').join(', ');
 
-    db.prepare(`INSERT INTO recipes (${columns}) VALUES (${values});`).run(...Object.values(newRecipe));
+    const { lastInsertRowid } = db.prepare(`INSERT INTO recipes (${columns}) VALUES (${values});`).run(...Object.values(newRecipe));
+
+    newRecipe.id = lastInsertRowid;
 
     return newRecipe;
 })
