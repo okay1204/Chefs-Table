@@ -25,6 +25,16 @@
     border-radius: 5px;
     background-color: var(--primary-background);
     border: var(--primary-bright) solid 2px;
+    max-height: 200px;
+
+    transition: all ease 100ms;
+}
+
+.mini-create-box.hidden {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    border: none;
 }
 
 .mini-create-box-title {
@@ -36,9 +46,22 @@
     font-size: 15px;
 }
 
-.mini-create-box-error {
-    color: red;
+.mini-create-box-expand {
     display: block;
-    margin: 10px;
-    font-size: 15px;
+    position: absolute;
+    padding: 0;
+    top: -20px;
+    left: -15px;
+    transform: rotate(45deg);
+    transition: all ease 100ms;
+}
+
+.mini-create-box-expand:hover {
+    transform: scale(1.4, 1.4) rotate(45deg);
+}
+
+.mini-create-box-expand-wrapper {
+    display: block;
+    position: relative;
+    margin: 10px 0;
 }

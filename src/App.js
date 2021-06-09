@@ -8,29 +8,47 @@ import ipcRendererStateManager from './ipcRendererStateManager.js';
 
 const { ipcRenderer: rawIpcRenderer } = window.require('electron');
 
-function App() {
 
-    const [recipes, setRecipes] = React.useState([]);
-    const ipcRenderer = ipcRendererStateManager;
-    ipcRenderer.initialize(rawIpcRenderer, setRecipes);
+class App extends React.Component {
 
-    // initial reading of db
-    React.useEffect(() => {
-        ipcRenderer.invoke('recipes:read').then((recipes) => {
-            setRecipes(recipes);
-        })
-    })
+    constructor() {
+        super();
+        this.state = {
+            recipes: [],
+        };
 
+        this.ipcRenderer = ipcRendererStateManager;
+        this.ipcRenderer.initialize(rawIpcRenderer, (newRecipes) => this.setState({recipes: newRecipes}));
 
+        this.setCreateBox = this.setCreateBox.bind(this)
+    }
 
-    return (
-        <div className='App'>
+    setCreateBox(value) {
+        this.setState({createBox: value});
+    }
 
-            <Header ipcRenderer={ipcRenderer}/>
-            <Body recipes={recipes} ipcRenderer={ipcRenderer}/>
+    componentDidMount() {
+        this.ipcRenderer.invoke('recipes:read').then((recipes) => {
+            this.setState({recipes});
+        });
+    }
 
-        </div>
-    );
+    render() {
+        return (
+            <div className='App'>
+
+                <Header
+                    ipcRenderer={this.ipcRenderer}
+                />
+
+                <Body
+                    recipes={this.state.recipes}
+                    ipcRenderer={this.ipcRenderer}
+                />
+    
+            </div>
+        );
+    }
 }
 
 export default App;

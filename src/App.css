@@ -20,9 +20,9 @@
 /* General styling */
 
 * {
-  box-sizing: border-box;
-  text-align: center;
-  outline: none;
+    box-sizing: border-box;
+    text-align: center;
+    outline: none;
 }
 
 body {

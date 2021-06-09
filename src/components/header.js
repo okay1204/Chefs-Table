@@ -1,58 +1,87 @@
 import '../styles/header.css';
 import React from 'react';
+import CreateBox from './createBox.js';
 
 import ClickOutside from '../components/clickOutside.js';
 import AddCircleEmerald from '../images/addCircleEmerald.png';
+import ExpandEmerald from '../images/expandEmerald.png';
 
 
-function Header({ipcRenderer}) {
+class Header extends React.Component {
 
-    function handleUrlInput(event) {
-        if (event.key === 'Enter') {
-            ipcRenderer.recipes.webscrape(event.target.value)
-            .then((recipeData) => {
-                console.log(recipeData);
-            })
-            .catch((error) => {
-                if (error.code === 'DOMAIN_UNSUPPORTED') {
-                    setError('Website not supported');
-                } else if (error.code === 'DOMAIN_REQUEST_ERROR') {
-                    setError('Failed request, is the website down?');
-                } else {
-                    setError('Invalid recipe URL');
-                }
-            });
-        } else {
-            setError(null);
+    constructor() {
+        super();
+
+        this.state = {
+            miniCreateBox: false,
+            miniCreateBoxUrl: '',
+            createBox: false
         }
+
+        this.miniCreateBoxUrlInput = React.createRef();
     }
 
-    const [createBox, setCreateBox] = React.useState(false);
-    const [error, setError] = React.useState(null);
+    render() {
+        return (
+            <div className='Header'>
+                <div className='add-recipe-button-wrapper'>
+                    <button className='add-recipe-button' onClick={() => {
 
-    return (
-        <div className='Header'>
-            <div className='add-recipe-button-wrapper'>
-                <button className='add-recipe-button' onClick={() => setCreateBox(!createBox)}>
-                    <img src={AddCircleEmerald} alt='Add a new recipe' />
-                </button>
-            </div>
-
-            {
-                createBox &&
-                <ClickOutside onClick={() => setCreateBox(false)}>
-                    <div className='mini-create-box'>
-                        <h1 className='mini-create-box-title'>Enter URL</h1>
-                        <input className='mini-create-box-url-input' onKeyDown={(event) => handleUrlInput(event)} type='text' autoFocus placeholder='Paste URL...'/>
-                        {
-                            error &&
-                            <span className='mini-create-box-error'>{error}</span>
+                        if (this.state.miniCreateBox) {
+                            this.miniCreateBoxUrlInput.current.blur();
+                        } else {
+                            this.miniCreateBoxUrlInput.current.focus();
                         }
+
+                        this.setState({
+                            miniCreateBox: !this.state.miniCreateBox
+                        });
+
+                    }}>
+                        <img src={AddCircleEmerald} alt='Add a new recipe' />
+                    </button>
+                </div>
+    
+                {/* mini create box with url input only */}
+                <ClickOutside onClick={() => this.setState({miniCreateBox: false})}>
+                    <div className={`mini-create-box ${this.state.miniCreateBox ? '' : 'hidden'}`}>
+                        <h1 className='mini-create-box-title'>Enter URL</h1>
+                        <input className='mini-create-box-url-input' type='text' value={this.state.miniCreateBoxUrl} placeholder='Paste URL...' ref={this.miniCreateBoxUrlInput}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    this.setState({
+                                        createBox: {sendRequest: true, url: this.state.miniCreateBoxUrl},
+                                        miniCreateBox: false
+                                    });
+                                }
+                            }}
+                            onChange={(event) => {
+                                this.setState({
+                                    miniCreateBoxUrl: event.target.value
+                                });
+                            }}
+                        />
+                        <button className='mini-create-box-expand-wrapper'>
+                            <img className='mini-create-box-expand' src={ExpandEmerald} alt='Expand' onClick={() => {
+                                this.setState({
+                                    createBox: {sendRequest: false, url: this.state.miniCreateBoxUrl},
+                                    miniCreateBoxUrl: '',
+                                    miniCreateBox: false
+                                })
+                            }}/>
+                        </button>
                     </div>
                 </ClickOutside>
-            }
-        </div>
-    )
+    
+                {/* large create box */}
+                {
+                    this.state.createBox &&
+                    <CreateBox unmount={() => this.setState({createBox: false})} ipcRenderer={this.props.ipcRenderer} initialValue={this.state.createBox}/>
+                }
+    
+            </div>
+        )
+    }
 };
 
 export default Header;

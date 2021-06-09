@@ -1,3 +1,5 @@
+import React from 'react';
+
 import AddCircleBlack from '../images/addCircleBlack.png';
 
 function Body({recipes, ipcRenderer}) {
@@ -13,6 +15,7 @@ function Body({recipes, ipcRenderer}) {
                         </div>    
                 </div>
             }
+            
 
             <span>{JSON.stringify(recipes)}</span>
 
@@ -25,6 +28,8 @@ function Body({recipes, ipcRenderer}) {
             <button onClick={() => {
                 ipcRenderer.recipes.clear()
             }}>clear</button>
+
+            
         </div>
     )
 };

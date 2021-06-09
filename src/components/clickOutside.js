@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 function ClickOutside({ children, onClick }) {
     const refs = React.Children.map(children, () => React.createRef());
@@ -7,12 +7,13 @@ function ClickOutside({ children, onClick }) {
         const isOutside = refs.every(ref => {
             return ref.current && !ref.current.contains(e.target);
         });
+
         if (isOutside) {
             onClick();
         }
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         document.addEventListener("click", handleClick);
 
         return function() {

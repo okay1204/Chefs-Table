@@ -7,7 +7,7 @@
 
 # testing
 /coverage
-/dev/chefs-table.db
+/dev/*
 
 # production
 /build

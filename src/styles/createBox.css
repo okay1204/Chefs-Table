@@ -1,0 +1,91 @@
+.create-box-background {
+    background-color: rgba(0, 0, 0, 0.3);
+    position: absolute;
+    z-index: 9;
+    width: 100vw;
+    height: 100vh;
+
+    top: 0;
+    left: 0;
+}
+
+.create-box {
+    background-color: var(--primary-background);
+    border: var(--primary-dark) solid 3px;
+    border-radius: 10px;
+    transition: all ease-in 200ms;
+    z-index: 10;
+    animation: zoomIn ease 250ms;
+    position: absolute;
+    left: 50px;
+    right: 50px;
+    top: 50px;
+    bottom: 50px;
+    font-size: 20px;
+}
+
+.create-box-animate-out {
+    animation: zoomOut ease 250ms;
+}
+
+.create-box-loading-wheel {
+    width: 40px;
+}
+
+.create-box input {
+    border: var(--primary-bright) solid 2px;
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    text-align: left;
+}
+
+.create-box .create-box-url-input {
+    display: block;
+    width: 80%;
+}
+
+.create-box-close {
+    width: 40px;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.create-box-close:hover {
+    transform: scale(1.1, 1.1);
+    cursor: pointer;
+}
+
+.create-box hr {
+    border: #696d67 solid 1px;
+    margin: 10px;
+}
+
+.create-box-url-input-wrapper {
+    display: flex;
+    width: 90%;
+    margin: 0 auto;
+    align-items: center;
+}
+
+.create-box-url-input-wrapper * {
+    margin: 10px;
+}
+
+.create-box-autofill-button {
+    background-color: var(--primary-bright);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+.create-box-autofill-button:hover {
+    opacity: 0.7;
+}
+
+.create-box-error {
+    color: red;
+    font-size: 15px;
+}
