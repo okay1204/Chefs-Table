@@ -23,6 +23,7 @@ class CreateBox extends React.Component {
         };
         
         this.handleUrlInput = this.handleUrlInput.bind(this);
+        this.addIngredient = this.addIngredient.bind(this);
     }
     
     componentDidMount() {
@@ -44,7 +45,15 @@ class CreateBox extends React.Component {
 
         this.props.ipcRenderer.recipes.webscrape(url)
         .then((recipeData) => {
-            console.log(recipeData);
+
+            this.setState({
+                inputIngredients: {},
+                ingredientIdCount: 0
+            })
+            recipeData.ingredients.forEach((ingredient) => {
+                this.addIngredient(ingredient);
+            })
+
             this.setState({
                 inputName: recipeData.name,
                 inputProtein: recipeData.protein ? recipeData.protein : ''
@@ -64,11 +73,22 @@ class CreateBox extends React.Component {
         });
     }
 
-    render () {
+    addIngredient(ingredient) {
+        // Using JSON.parse and JSON.stringify to clone object
+        const newIngredients = JSON.parse(JSON.stringify(this.state.inputIngredients));
+        newIngredients[this.state.ingredientIdCount] = ingredient;
+
+        this.setState({
+            ingredientIdCount: this.state.ingredientIdCount + 1,
+            inputIngredients: newIngredients
+        });
+    }
+
+    render() {
 
         const ingredientsHTML = [];
 
-        for (const [key, value] of Object.entries(this.state.inputIngredients)) {
+        for (const key of Object.keys(this.state.inputIngredients)) {
             ingredientsHTML.push([
                 <div key={'delete ' + key} className='create-box-ingredients-delete'><img src={DeleteIcon} alt='delete' onClick={() => {
                     // Using JSON.parse and JSON.stringify to clone object
@@ -146,16 +166,7 @@ class CreateBox extends React.Component {
                     <ul className='create-box-ingredients-list'>
                         {ingredientsHTML}
                     </ul>
-                    <button onClick={() => {
-                        // Using JSON.parse and JSON.stringify to clone object
-                        const newIngredients = JSON.parse(JSON.stringify(this.state.inputIngredients));
-                        newIngredients[this.state.ingredientIdCount] = '';
-
-                        this.setState({
-                            ingredientIdCount: this.state.ingredientIdCount + 1,
-                            inputIngredients: newIngredients
-                        });
-                    }}>+</button>
+                    <button className='create-box-add-ingredient' onClick={() => this.addIngredient('')}>+</button>
 
                 </div>
             </div>

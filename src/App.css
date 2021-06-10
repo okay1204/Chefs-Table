@@ -66,6 +66,19 @@ input {
     background-color: transparent;
 }
 
+::-webkit-scrollbar {
+    width: 5px;
+}
+  
+::-webkit-scrollbar-thumb {
+    background: var(--primary-bright);
+    border-radius: 25px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 /* Fonts */
 
 @font-face {
