@@ -4,6 +4,7 @@ import React from 'react';
 
 import CloseBlack from '../images/closeBlack.png';
 import LoadingWheel from '../images/loadingWheel.gif';
+import DeleteIcon from '../images/delete.png';
 
 class CreateBox extends React.Component {
 
@@ -14,7 +15,11 @@ class CreateBox extends React.Component {
             animation: null,
             urlError: null,
             url: '',
-            loading: false
+            loading: false,
+            inputName: '',
+            inputProtein: '',
+            inputIngredients: {},
+            ingredientIdCount: 0
         };
         
         this.handleUrlInput = this.handleUrlInput.bind(this);
@@ -40,6 +45,10 @@ class CreateBox extends React.Component {
         this.props.ipcRenderer.recipes.webscrape(url)
         .then((recipeData) => {
             console.log(recipeData);
+            this.setState({
+                inputName: recipeData.name,
+                inputProtein: recipeData.protein ? recipeData.protein : ''
+            })
         })
         .catch((error) => {
             if (error.code === 'DOMAIN_UNSUPPORTED') {
@@ -56,6 +65,25 @@ class CreateBox extends React.Component {
     }
 
     render () {
+
+        const ingredientsHTML = [];
+
+        for (const [key, value] of Object.entries(this.state.inputIngredients)) {
+            ingredientsHTML.push([
+                <div key={'delete ' + key} className='create-box-ingredients-delete'><img src={DeleteIcon} alt='delete' onClick={() => {
+                    // Using JSON.parse and JSON.stringify to clone object
+                    const newIngredients = JSON.parse(JSON.stringify(this.state.inputIngredients));
+                    delete newIngredients[key];
+
+                    this.setState({
+                        inputIngredients: newIngredients
+                    });
+                }}/></div>,
+                <input key={'input ' + key} type='text' placeholder='Recipe ingredient...'/>
+            ])
+        }
+
+
         return (
             <div className='create-box-wrapper'>
                 {
@@ -81,6 +109,8 @@ class CreateBox extends React.Component {
                                 this.setState({urlError: null});
                             }
 
+                        }}
+                        onChange={(event) => {
                             this.setState({url: event.target.value});
                         }}/>
                         {this.state.loading && <img className='create-box-loading-wheel' src={LoadingWheel} alt='loading'/>}
@@ -90,6 +120,34 @@ class CreateBox extends React.Component {
                     {this.state.urlError && <span className='create-box-error'>{this.state.urlError}</span>}
 
                     <hr />
+
+                    <div className='create-box-input-grid'>
+                        <label htmlFor='name'>Name</label>
+                        <input type='text' name='name' placeholder='Recipe Name...' value={this.state.inputName} onChange={(event) => {
+                            this.setState({inputName: event.target.value})
+                        }}/>
+
+                        <label htmlFor='protein'>Protein</label>
+                        <input type='text' name='protein' placeholder='Main Protein... (leave blank if none)' value={this.state.inputProtein} onChange={(event) => {
+                            this.setState({inputProtein: event.target.value})
+                        }}/>
+
+                    </div>
+
+                    <h3>Ingredients</h3>
+                    <ul className='create-box-ingredients-list'>
+                        {ingredientsHTML}
+                    </ul>
+                    <button onClick={() => {
+                        // Using JSON.parse and JSON.stringify to clone object
+                        const newIngredients = JSON.parse(JSON.stringify(this.state.inputIngredients));
+                        newIngredients[this.state.ingredientIdCount] = '';
+
+                        this.setState({
+                            ingredientIdCount: this.state.ingredientIdCount + 1,
+                            inputIngredients: newIngredients
+                        });
+                    }}>+</button>
 
                 </div>
             </div>

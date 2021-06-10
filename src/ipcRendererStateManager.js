@@ -5,6 +5,7 @@ class ipcRendererStateManager {
         this.ipcRenderer = ipcRenderer;
         this.setRecipes = setRecipes;
         this.recipes = new Recipes(ipcRenderer, setRecipes);
+        this.ingredients = new Ingredients(ipcRenderer);
     }
 };
 
@@ -34,11 +35,11 @@ class Recipes {
         });
     }
 
-    async remove(recipes, recipeId) {
-        return this.ipcRenderer.invoke('recipes:remove', recipeId)
+    async remove(recipes, recipeIdToRemove) {
+        return this.ipcRenderer.invoke('recipes:remove', recipeIdToRemove)
         .then(removedRecipe => {
             this.setRecipes(
-                [...recipes].filter(recipe => recipe.id !== recipeId)
+                [...recipes].filter(recipe => recipe.id !== recipeIdToRemove)
             );
         });
     }
@@ -47,6 +48,33 @@ class Recipes {
         return this.ipcRenderer.invoke('recipes:clear')
         .then(() => this.setRecipes([]));
     }
+}
+
+class Ingredients {
+
+    constructor(ipcRenderer) {
+        this.ipcRenderer = ipcRenderer;
+    }
+
+    async add(ingredients, setIngredients, ingredient) {
+        return this.ipcRenderer.invoke('ingredients:add', ingredient)
+        .then((newIngredient) => setIngredients(
+            ingredients.concat(newIngredient)
+        ));
+    }
+
+    async remove(ingredients, setIngredients, ingredientIdToRemove) {
+        return this.ipcRenderer.invoke('ingredients:add', ingredientIdToRemove)
+        .then((removedIngredient) => setIngredients(
+            [...ingredients].filter(ingredient => ingredient.id !== ingredientIdToRemove)
+        ));
+    }
+
+    async clear(setIngredients, recipeId) {
+        return this.ipcRenderer.invoke('ingredients:clear', recipeId)
+        .then(() => setIngredients([]));
+    }
+
 }
 
 export default new ipcRendererStateManager();

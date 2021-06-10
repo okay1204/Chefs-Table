@@ -40,11 +40,6 @@
     text-align: left;
 }
 
-.create-box .create-box-url-input {
-    display: block;
-    width: 80%;
-}
-
 .create-box-close {
     width: 40px;
     position: absolute;
@@ -73,7 +68,7 @@
     margin: 10px;
 }
 
-.create-box-autofill-button {
+.create-box button {
     background-color: var(--primary-bright);
     color: white;
     padding: 10px;
@@ -81,11 +76,50 @@
     font-size: 20px;
 }
 
-.create-box-autofill-button:hover {
+.create-box button:hover {
     opacity: 0.7;
 }
 
 .create-box-error {
     color: red;
     font-size: 15px;
+}
+
+.create-box-input-grid {
+    display: grid;
+    grid-template-columns: 15% 80%;
+}
+
+.create-box-input-grid * {
+    margin: 10px 5px;
+}
+
+.create-box-input-grid label {
+    margin: auto;
+}
+
+.create-box-ingredients-list {
+    display: grid;
+    padding: 0 0;
+    grid-template-columns: 10% 85%;
+}
+
+.create-box-ingredients-list * {
+    margin: 5px 0;
+}
+
+.create-box-ingredients-delete {
+    max-width: 39px;
+    cursor: pointer;
+    transition: all ease 100ms;
+    margin: auto;
+}
+
+.create-box-ingredients-delete img {
+    width: 100%;
+}
+
+.create-box-ingredients-delete:hover {
+    transform: scale(1.3, 1.3);
+    opacity: 0.9;
 }

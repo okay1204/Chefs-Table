@@ -1,8 +1,9 @@
 const axios = require('axios');
 const HTMLParser = require('node-html-parser');
 const Url = require('url-parse');
+const he = require('he');
 
-const ALL_PROTEINS = ['chicken', 'beef', 'veggie', 'fish', 'salmon', 'shrimp'];
+const ALL_PROTEINS = ['chicken', 'beef', 'fish', 'salmon', 'shrimp'];
 
 class DomainUnsupportedError extends Error {
     constructor(message) {
@@ -52,9 +53,6 @@ class WebScrape {
 
     }
 
-
-
-
     static async getRecipeData(url) {
         const parsedUrl = new Url(url);
 
@@ -86,12 +84,14 @@ class WebScrape {
 
         const name = data.name;
         const protein = this.proteinFromName(name);
+        const ingredients = data.recipeIngredient;
 
         return {
             url,
             name,
-            image_url: data.image.url,
-            protein
+            imageUrl: data.image.url,
+            protein,
+            ingredients
         };
     }
 
@@ -102,14 +102,28 @@ class WebScrape {
         const root = HTMLParser.parse(response.data);
 
         const name = root.querySelector('.recipe-title').rawText.trim()
-        const image_url = root.querySelector('.recipe-intro .media-container picture img').attributes.src
+        const imageUrl = root.querySelector('.recipe-intro .media-container picture img').attributes.src
         const protein = this.proteinFromName(name);
+
+        
+        let ingredient_quantities = root.querySelectorAll('.recipe-ingredients li .quantity');
+        let ingredient_names = root.querySelectorAll('.recipe-ingredients li .ingredient-name');
+
+        ingredient_quantities = ingredient_quantities.map((element) => he.decode(element.innerHTML).trim());
+        ingredient_names = ingredient_names.map((element) => element.innerHTML.trim());
+
+        const ingredients = [];
+
+        for (let i = 0; i < ingredient_names.length; i++) {
+            ingredients.push((ingredient_quantities[i] + ' ' + ingredient_names[i]).trim());
+        }
 
         return {
             url,
             name,
-            image_url,
-            protein
+            imageUrl,
+            protein,
+            ingredients
         };
     }
 
@@ -146,10 +160,6 @@ class WebScrape {
 }
 
 // WebScrape.getRecipeData('https://cdn2.greenchef.com/uploaded/60955cf63f1611001489a41c.pdf').then((result) => {
-//     console.log(result)
-// })
-
-// WebScrape.getRecipeData('https://cooking.nytimes.com/recipes/1022171-pistachio-biscotti').then((result) => {
 //     console.log(result)
 // })
 

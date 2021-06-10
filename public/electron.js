@@ -1,9 +1,6 @@
 const path = require('path');
-
 const { app, ipcMain, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
-const fs = require('fs').promises;
-const { exception } = require('console');
 const { WebScrape } = require('./webscrape.js');
 const Database = require('better-sqlite3');
 
@@ -95,15 +92,19 @@ const DATABASE_PATH = isDev
 const db = new Database(DATABASE_PATH);
 
 // set up all tables
-db.prepare('CREATE TABLE IF NOT EXISTS recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, image_url TEXT, protien TEXT);').run();
+db.prepare('CREATE TABLE IF NOT EXISTS recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, imageUrl TEXT, protien TEXT);').run();
+db.prepare('CREATE TABLE IF NOT EXISTS ingredients (id INTEGER PRIMARY KEY AUTOINCREMENT, recipeId INTEGER NOT NULL, ingredient TEXT);').run();
 
 
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-ipcMain.handle('recipes:read', async (event, newRecipe) => {
+
+// Recipes
+
+ipcMain.handle('recipes:read', async () => {
     return db.prepare('SELECT * FROM recipes;').all();
-});
+})
 
 ipcMain.handle('recipes:add', async (event, newRecipe) => {
     
@@ -118,7 +119,6 @@ ipcMain.handle('recipes:add', async (event, newRecipe) => {
 })
 
 ipcMain.handle('recipes:webscrape', async (event, url) => {
-
     try {
         return {
             error: null,
@@ -138,11 +138,35 @@ ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
     const removedRecipe = db.prepare('SELECT * FROM recipes WHERE id = ?;').get(recipeIdToRemove);
     
     db.prepare('DELETE FROM recipes WHERE id = ?;').run(recipeIdToRemove);
-
+    
     return removedRecipe;
 })
 
 ipcMain.handle('recipes:clear', async () => {
     db.prepare('DELETE FROM recipes;').run();
+    return [];
+})
+
+// Ingredients
+
+ipcMain.handle('ingredients:add', async (event, ingredient) => {
+    const { lastInsertRowid } = db.prepare('INSERT INTO ingredients (recipeId, ingredient) VALUES (?, ?);').run(ingredient.recipeId, ingredient.ingredient);
+    
+    ingredient.id = lastInsertRowid;
+    
+    return ingredient;
+})
+
+ipcMain.handle('ingredients:remove', async (event, ingredientIdToRemove) => {
+    const removedIngredient = db.prepare('SELECT * FROM ingredients WHERE id = ?;').get(ingredientIdToRemove);
+
+    db.prepare('DELETE FROM ingredients WHERE id = ?;').run(ingredientIdToRemove);
+
+    return removedIngredient;
+})
+
+ipcMain.handle('ingredients:clear', async (event, recipeId) => {
+    db.prepare('DELETE FROM ingredients WHERE recipeId = ?;').run(recipeId);
+    
     return [];
 })
