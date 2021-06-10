@@ -79,7 +79,15 @@ class CreateBox extends React.Component {
                         inputIngredients: newIngredients
                     });
                 }}/></div>,
-                <input key={'input ' + key} type='text' placeholder='Recipe ingredient...'/>
+                <input key={'input ' + key} type='text' placeholder='Recipe ingredient...' value={this.state.inputIngredients[key]} onChange={(event) => {
+
+                    const newIngredients = JSON.parse(JSON.stringify(this.state.inputIngredients));
+                    newIngredients[key] = event.target.value;
+                    
+                    this.setState({
+                        inputIngredients: newIngredients
+                    });
+                }}/>
             ])
         }
 
