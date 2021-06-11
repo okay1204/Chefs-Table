@@ -54,6 +54,30 @@
     cursor: pointer;
 }
 
+.create-box-supported-websites-button {
+    font-size: 15px;
+    text-decoration: underline;
+    color: #505050;
+    cursor: pointer;
+    display: block;
+    user-select: none;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.create-box-supported-websites-list span {
+    display: block;
+    font-size: 15px;
+    position: relative;
+    right: 20px;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+.create-box-supported-websites-list span:hover {
+    text-decoration: underline;
+}
+
 .create-box hr {
     border: #696d67 solid 1px;
     margin: 10px;

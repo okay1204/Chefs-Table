@@ -2,6 +2,8 @@ class ipcRendererStateManager {
 
     initialize(ipcRenderer, setRecipes) {
         this.invoke = ipcRenderer.invoke;
+        this.send = ipcRenderer.send;
+        
         this.ipcRenderer = ipcRenderer;
         this.setRecipes = setRecipes;
         this.recipes = new Recipes(ipcRenderer, setRecipes);

@@ -16,6 +16,7 @@ class CreateBox extends React.Component {
             urlError: null,
             url: '',
             loading: false,
+            websiteList: false,
             inputName: '',
             inputProtein: '',
             inputIngredients: {},
@@ -146,6 +147,27 @@ class CreateBox extends React.Component {
                     </div>
 
                     {this.state.urlError && <span className='create-box-error'>{this.state.urlError}</span>}
+
+                    <span className='create-box-supported-websites-button' onClick={() => this.setState({websiteList: !this.state.websiteList})}>{this.state.websiteList ? 'Hide' : 'See list of supported websites'}</span>
+                    <ul className='create-box-supported-websites-list'>
+                        {   
+                            this.state.websiteList &&
+                            ['cooking.nytimes.com', 'www.allrecipes.com']
+                            .map((website) => {
+                                const domain = 'https://' + website;
+
+                                return (
+                                    <span
+                                        href={domain}
+                                        key={website}
+                                        onClick={() => this.props.ipcRenderer.send('main:loadGH', domain)}
+                                    >
+                                        {website}
+                                    </span>
+                                )
+                            })
+                        }
+                    </ul>
 
                     <hr />
 

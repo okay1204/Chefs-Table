@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, ipcMain, BrowserWindow } = require('electron');
+const { app, ipcMain, BrowserWindow, shell } = require('electron');
 const isDev = require('electron-is-dev');
 const { WebScrape } = require('./webscrape.js');
 const Database = require('better-sqlite3');
@@ -99,6 +99,12 @@ db.prepare('CREATE TABLE IF NOT EXISTS ingredients (id INTEGER PRIMARY KEY AUTOI
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// Core processes
+
+ipcMain.on('main:loadGH', (event, arg) => {
+    shell.openExternal(arg);
+})
 
 // Recipes
 
