@@ -86,12 +86,15 @@ class WebScrape {
         const protein = this.proteinFromName(name);
         const ingredients = data.recipeIngredient;
 
+        const instructions = data.recipeInstructions.map((step) => step.text).join('')
+
         return {
             url,
             name,
             imageUrl: data.image.url,
             protein,
-            ingredients
+            ingredients,
+            instructions
         };
     }
 
@@ -106,24 +109,28 @@ class WebScrape {
         const protein = this.proteinFromName(name);
 
         
-        let ingredient_quantities = root.querySelectorAll('.recipe-ingredients li .quantity');
-        let ingredient_names = root.querySelectorAll('.recipe-ingredients li .ingredient-name');
+        let ingredientQuantities = root.querySelectorAll('.recipe-ingredients li .quantity');
+        let ingredientNames = root.querySelectorAll('.recipe-ingredients li .ingredient-name');
 
-        ingredient_quantities = ingredient_quantities.map((element) => he.decode(element.innerHTML).trim());
-        ingredient_names = ingredient_names.map((element) => element.innerHTML.trim());
+        ingredientQuantities = ingredientQuantities.map((element) => he.decode(element.innerHTML).trim());
+        ingredientNames = ingredientNames.map((element) => element.innerHTML.trim());
 
         const ingredients = [];
 
-        for (let i = 0; i < ingredient_names.length; i++) {
-            ingredients.push((ingredient_quantities[i] + ' ' + ingredient_names[i]).trim());
+        for (let i = 0; i < ingredientNames.length; i++) {
+            ingredients.push((ingredientQuantities[i] + ' ' + ingredientNames[i]).trim());
         }
+
+        let instructions = root.querySelectorAll('.recipe-steps li');
+        instructions = instructions.map((step) => step.innerText).join('\n');
 
         return {
             url,
             name,
             imageUrl,
             protein,
-            ingredients
+            ingredients,
+            instructions
         };
     }
 
@@ -159,7 +166,7 @@ class WebScrape {
     // }
 }
 
-// WebScrape.getRecipeData('https://cdn2.greenchef.com/uploaded/60955cf63f1611001489a41c.pdf').then((result) => {
+// WebScrape.getRecipeData('https://cooking.nytimes.com/recipes/1020252-dirty-horchata?action=click&region=Sam%20Sifton%27s%20Suggestions&rank=5').then((result) => {
 //     console.log(result)
 // })
 

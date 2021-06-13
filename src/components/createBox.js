@@ -1,6 +1,7 @@
 import '../styles/createBox.css';
 import 'animate.css/animate.min.css'
 import React from 'react';
+import OutsideAnchor from './outSideAnchor';
 
 import CloseBlack from '../images/closeBlack.png';
 import LoadingWheel from '../images/loadingWheel.gif';
@@ -11,6 +12,10 @@ class CreateBox extends React.Component {
     constructor() {
         super();
         
+        this.meals = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'other'];
+        const mealObj = {};
+        this.meals.forEach((meal) => mealObj[meal] = false);
+        
         this.state = {
             animation: null,
             urlError: null,
@@ -19,12 +24,16 @@ class CreateBox extends React.Component {
             websiteList: false,
             inputName: '',
             inputProtein: '',
+            inputMeal: mealObj,
+            inputInstructions: '',
             inputIngredients: {},
             ingredientIdCount: 0
         };
         
         this.handleUrlInput = this.handleUrlInput.bind(this);
         this.addIngredient = this.addIngredient.bind(this);
+
+        
     }
     
     componentDidMount() {
@@ -75,8 +84,7 @@ class CreateBox extends React.Component {
     }
 
     addIngredient(ingredient) {
-        // Using JSON.parse and JSON.stringify to clone object
-        const newIngredients = JSON.parse(JSON.stringify(this.state.inputIngredients));
+        const newIngredients = this.state.inputIngredients;
         newIngredients[this.state.ingredientIdCount] = ingredient;
 
         this.setState({
@@ -92,8 +100,7 @@ class CreateBox extends React.Component {
         for (const key of Object.keys(this.state.inputIngredients)) {
             ingredientsHTML.push([
                 <div key={'delete ' + key} className='create-box-ingredients-delete'><img src={DeleteIcon} alt='delete' onClick={() => {
-                    // Using JSON.parse and JSON.stringify to clone object
-                    const newIngredients = JSON.parse(JSON.stringify(this.state.inputIngredients));
+                    const newIngredients = this.state.inputIngredients;
                     delete newIngredients[key];
 
                     this.setState({
@@ -157,13 +164,14 @@ class CreateBox extends React.Component {
                                 const domain = 'https://' + website;
 
                                 return (
-                                    <span
-                                        href={domain}
+                                    <OutsideAnchor
                                         key={website}
+                                        ipcRenderer={this.props.ipcRenderer}
+                                        href={domain}
                                         onClick={() => this.props.ipcRenderer.send('main:loadGH', domain)}
                                     >
                                         {website}
-                                    </span>
+                                    </OutsideAnchor>
                                 )
                             })
                         }
@@ -171,18 +179,49 @@ class CreateBox extends React.Component {
 
                     <hr />
 
+                    <h3>Image</h3>
+                    <div className='create-box-image-select'>
+                        <button>Browse your computer</button>
+                        <span>or</span> 
+                        <div className='create-box-paste-image-url-wrapper'>
+                            <input type='text' placeholder='Paste a link from the web...'/>
+                            <button>Grab Image</button>
+                        </div>
+                    </div>
+
                     <div className='create-box-input-grid'>
-                        <label htmlFor='name'>Name</label>
-                        <input type='text' name='name' placeholder='Recipe Name...' value={this.state.inputName} onChange={(event) => {
+                        <label htmlFor='create-box-name'>Name</label>
+                        <input type='text' id='create-box-name' name='name' placeholder='Recipe Name...' value={this.state.inputName} onChange={(event) => {
                             this.setState({inputName: event.target.value})
                         }}/>
 
-                        <label htmlFor='protein'>Protein</label>
-                        <input type='text' name='protein' placeholder='Main Protein... (leave blank if none)' value={this.state.inputProtein} onChange={(event) => {
+                        <label htmlFor='create-box-protein'>Protein</label>
+                        <input type='text' name='create-box-protein' placeholder='Main Protein... (leave blank if none)' value={this.state.inputProtein} onChange={(event) => {
                             this.setState({inputProtein: event.target.value})
                         }}/>
-
                     </div>
+
+                    <h3>Meal</h3>
+                    
+                    <div className='create-box-meal-wrapper'>
+                        {
+                            this.meals
+                            .map((meal) => (
+                                <div className='create-box-checkbox-wrapper' key={meal}>
+                                    <input type='checkbox' id={`create-box-${meal}`} name={meal} onChange={(event) => {
+                                        const newMeal = this.state.inputMeal;
+                                        newMeal[meal] = event.target.checked;
+                                        
+                                        this.setState({inputMeal: newMeal});
+                                    }}/>
+                                    <label htmlFor={`create-box-${meal}`}>{meal[0].toUpperCase() + meal.substring(1).toLowerCase()}</label>
+                                </div>
+                            ))
+                        }
+                    </div>
+
+                    <h3>Instructions</h3>
+                    <textarea className='create-box-instructions' placeholder='Recipe Instructions...' value={this.state.inputInstructions} onChange={(event) => this.setState({inputInstructions: event.target.value})}/>
 
                     <h3>Ingredients</h3>
                     <ul className='create-box-ingredients-list'>

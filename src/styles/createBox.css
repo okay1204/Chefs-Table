@@ -34,7 +34,7 @@
     width: 40px;
 }
 
-.create-box input {
+.create-box input[type="text"] {
     border: var(--primary-bright) solid 2px;
     padding: 10px;
     border-radius: 10px;
@@ -83,6 +83,42 @@
     margin: 10px;
 }
 
+.create-box-image-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.create-box .create-box-image-select > button {
+    font-size: 17px;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 0 10px;
+}
+
+.create-box .create-box-image-select span {
+    margin-left: 10px;
+}
+
+.create-box-paste-image-url-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 2;
+}
+
+.create-box .create-box-paste-image-url-wrapper input {
+    display: inline-block;
+    margin: 0 20px;
+}
+
+.create-box .create-box-paste-image-url-wrapper button {
+    white-space: nowrap;
+}
+
 .create-box-url-input-wrapper {
     display: flex;
     width: 90%;
@@ -124,6 +160,30 @@
     margin: auto;
 }
 
+.create-box-meal-wrapper {
+    width: min(100%, 600px);
+    user-select: none;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 auto;
+}
+
+.create-box-checkbox-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    flex-basis: 33.333333333%;
+}
+
+.create-box-checkbox-wrapper label {
+    cursor: pointer;
+}
+
+.create-box-checkbox-wrapper input {
+    margin-right: 0;
+}
+
 .create-box-ingredients-list {
     display: grid;
     padding: 0 0;
@@ -152,4 +212,15 @@
 
 .create-box-add-ingredient {
     margin-bottom: 10px;
+}
+
+.create-box-instructions {
+    resize: vertical;
+    background-color: transparent;
+    border-radius: 10px;
+    border: var(--primary-bright) solid 2px;
+    text-align: left;
+    padding: 10px;
+    width: 80%;
+    height: 200px;
 }

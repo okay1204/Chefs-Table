@@ -25,10 +25,14 @@
     outline: none;
 }
 
-body {
+body, textarea {
     background-color: var(--background);
     font-family: 'Work Sans', sans-serif;
     font-weight: 300;
+}
+
+textarea {
+    font-family: 'Arial', sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -71,10 +75,37 @@ input {
     background-color: transparent;
 }
 
+
+input[type="checkbox"] {
+    appearance: none;
+    display: inline-block;
+    transform: scale(0.7);
+    border: var(--primary-bright) 2px solid;
+    position: relative;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 25px;
+    height: 25px;
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--primary-bright);
+}
+
+input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    bottom: -5px;
+    right: -2px;
+    color: var(--primary-dark);
+    text-align: center;
+    font-size: 30px;
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }
-  
+
 ::-webkit-scrollbar-thumb {
     background: var(--primary-bright);
     border-radius: 25px;
