@@ -6,6 +6,7 @@ import OutsideAnchor from './outSideAnchor';
 import CloseBlack from '../images/closeBlack.png';
 import LoadingWheel from '../images/loadingWheel.gif';
 import DeleteIcon from '../images/delete.png';
+import CloseRed from '../images/closeRed.png';
 
 class CreateBox extends React.Component {
 
@@ -22,6 +23,9 @@ class CreateBox extends React.Component {
             url: '',
             loading: false,
             websiteList: false,
+            inputImage: '',
+            imageError: null,
+            image: null,
             inputName: '',
             inputProtein: '',
             inputMeal: mealObj,
@@ -32,8 +36,7 @@ class CreateBox extends React.Component {
         
         this.handleUrlInput = this.handleUrlInput.bind(this);
         this.addIngredient = this.addIngredient.bind(this);
-
-        
+        this.getImage = this.getImage.bind(this);     
     }
     
     componentDidMount() {
@@ -70,13 +73,16 @@ class CreateBox extends React.Component {
             })
         })
         .catch((error) => {
+            let urlError;
             if (error.code === 'DOMAIN_UNSUPPORTED') {
-                this.setState({urlError: 'Website not supported'});
+                urlError = 'Website not supported';
             } else if (error.code === 'DOMAIN_REQUEST_ERROR') {
-                this.setState({urlError: 'Failed request, is the url correct?'});
+                urlError = 'Failed request, is the URL correct?';
             } else {
-                this.setState({urlError: 'Invalid recipe URL'});
+                urlError = 'Invalid recipe URL';
             }
+
+            this.setState({urlError})
         })
         .finally(() => {
             this.setState({loading: false})
@@ -91,6 +97,26 @@ class CreateBox extends React.Component {
             ingredientIdCount: this.state.ingredientIdCount + 1,
             inputIngredients: newIngredients
         });
+    }
+
+    getImage(url) {
+        this.props.ipcRenderer.invoke('main:isImageUrl', url)
+        .then(result => {
+            if (result.isImage) {
+                this.setState({image: url});
+            } else {
+                let imageError;
+                if (result.code === 'REQUEST_FAILED') {
+                    imageError = 'Failed request, is the URL correct?';
+                } else if (result.code === 'NOT_IMAGE_URL') {
+                    imageError = 'URL is not a direct image link';
+                } else if (result.code === 'UNSUPPORTED_TYPE') {
+                    imageError = 'Only png, jpg, jpeg, and webp image formats are supported';
+                }
+                
+                this.setState({imageError})
+            }
+        })
     }
 
     render() {
@@ -153,7 +179,7 @@ class CreateBox extends React.Component {
                         <button className='create-box-autofill-button' onClick={() => this.handleUrlInput(this.state.url)}>Autofill</button>
                     </div>
 
-                    {this.state.urlError && <span className='create-box-error'>{this.state.urlError}</span>}
+                    {this.state.urlError && <span className='create-box-url-error'>{this.state.urlError}</span>}
 
                     <span className='create-box-supported-websites-button' onClick={() => this.setState({websiteList: !this.state.websiteList})}>{this.state.websiteList ? 'Hide' : 'See list of supported websites'}</span>
                     <ul className='create-box-supported-websites-list'>
@@ -181,23 +207,41 @@ class CreateBox extends React.Component {
 
                     <h3>Image</h3>
                     <div className='create-box-image-select'>
-                        <button>Browse your computer</button>
-                        <span>or</span> 
+                        <button>Browse your files</button>
+                        <span>or</span>
                         <div className='create-box-paste-image-url-wrapper'>
-                            <input type='text' placeholder='Paste a link from the web...'/>
-                            <button>Grab Image</button>
+                            <input type='text' placeholder='Image URL..' value={this.state.inputImage} onChange={(event) => {              
+                                this.setState({inputImage: event.target.value});
+                            }} onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    this.getImage(event.target.value);
+                                } else {
+                                    this.setState({imageError: null});
+                                }
+                            }}/>
+                            <button onClick={(event) => this.getImage(this.state.inputImage)}>Grab Image</button>
                         </div>
                     </div>
+                    {this.state.imageError && <span className='create-box-image-error'>{this.state.imageError}</span>}
+
+                    {   
+                        this.state.image &&
+                        <div className='create-box-image-wrapper'>
+                            {/* eslint-disable-next-line */}
+                            <img className='create-box-image-delete' src={CloseRed} alt='Delete recipe image' onClick={() => this.setState({image: null})}/>
+                            <img className='create-box-image' src={this.state.image} alt=''/>
+                        </div>
+                    }
 
                     <div className='create-box-input-grid'>
                         <label htmlFor='create-box-name'>Name</label>
                         <input type='text' id='create-box-name' name='name' placeholder='Recipe Name...' value={this.state.inputName} onChange={(event) => {
-                            this.setState({inputName: event.target.value})
+                            this.setState({inputName: event.target.value});
                         }}/>
 
                         <label htmlFor='create-box-protein'>Protein</label>
                         <input type='text' name='create-box-protein' placeholder='Main Protein... (leave blank if none)' value={this.state.inputProtein} onChange={(event) => {
-                            this.setState({inputProtein: event.target.value})
+                            this.setState({inputProtein: event.target.value});
                         }}/>
                     </div>
 

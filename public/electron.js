@@ -3,6 +3,7 @@ const { app, ipcMain, BrowserWindow, shell } = require('electron');
 const isDev = require('electron-is-dev');
 const { WebScrape } = require('./webscrape.js');
 const Database = require('better-sqlite3');
+const axios = require('axios');
 
 // Conditionally include the dev tools installer to load React Dev Tools
 let installExtension, REACT_DEVELOPER_TOOLS;
@@ -104,6 +105,39 @@ db.prepare('CREATE TABLE IF NOT EXISTS ingredients (id INTEGER PRIMARY KEY AUTOI
 
 ipcMain.on('main:loadGH', (event, arg) => {
     shell.openExternal(arg);
+})
+
+ipcMain.handle('main:isImageUrl', async (event, url) => {
+    let response;
+
+    try {
+        response = await axios.get(url);
+    } catch {
+        return {
+            isImage: false,
+            code: 'REQUEST_FAILED'
+        };
+    }
+
+    const supportedTypes = ['png', 'jpeg', 'webp'].map((extension) => 'image/' + extension);
+    const contentType = response.headers['content-type'];
+
+    if (!contentType || !contentType.startsWith('image/')) {
+        return {
+            isImage: false,
+            code: 'NOT_IMAGE_URL'
+        };
+    } else if (contentType.startsWith('image/') && !supportedTypes.includes(contentType)) {
+        return {
+            isImage: false,
+            code: 'UNSUPPORTED_TYPE'
+        };
+    } else {
+        return {
+            isImage: true,
+            code: 'SUCCESS'
+        };
+    }
 })
 
 // Recipes
