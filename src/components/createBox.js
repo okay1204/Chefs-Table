@@ -255,7 +255,7 @@ class CreateBox extends React.Component {
 
                             <button onClick={() => {
                                 this.getImage(this.state.inputImage);
-                                this.setState({imageError: null})
+                                this.setState({imageError: null});
                             }}>Grab Image</button>
                         </div>
                     </div>
