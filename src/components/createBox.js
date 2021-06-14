@@ -69,6 +69,7 @@ class CreateBox extends React.Component {
             })
 
             this.setState({
+                urlError: false,
                 image: recipeData.imageUrl ? {
                     type: 'url',
                     data: recipeData.imageUrl
@@ -115,7 +116,8 @@ class CreateBox extends React.Component {
         .then(result => {
             if (result.isImage) {
                 this.setState({
-                    image: { type: 'url', data: url }
+                    image: { type: 'url', data: url },
+                    imageError: false
                 });
             } else {
                 let imageError;
@@ -191,10 +193,7 @@ class CreateBox extends React.Component {
                             this.setState({url: event.target.value});
                         }}/>
                         {this.state.urlLoading && <img className='create-box-url-loading-wheel' src={LoadingWheel} alt='loading'/>}
-                        <button className='create-box-autofill-button' onClick={() => {
-                            this.handleUrlInput(this.state.url);
-                            this.setState({urlError: null});
-                        }}>Autofill</button>
+                        <button className='create-box-autofill-button' onClick={() => this.handleUrlInput(this.state.url)}>Autofill</button>
                     </div>
 
                     {this.state.urlError && <span className='create-box-url-error'>{this.state.urlError}</span>}
@@ -253,10 +252,7 @@ class CreateBox extends React.Component {
 
                             {this.state.imageLoading && <img className='create-box-image-loading-wheel' src={LoadingWheel} alt='loading'/>}
 
-                            <button onClick={() => {
-                                this.getImage(this.state.inputImage);
-                                this.setState({imageError: null});
-                            }}>Grab Image</button>
+                            <button onClick={() => this.getImage(this.state.inputImage)}>Grab Image</button>
                         </div>
                     </div>
                     {this.state.imageError && <span className='create-box-image-error'>{this.state.imageError}</span>}
