@@ -2,7 +2,7 @@ import React from 'react'
 
 import AddCircleBlack from '../images/addCircleBlack.png'
 
-function Body({recipes, ipcRenderer}) {
+function Body({recipes, recipePage}) {
 
     return (
         <div className='MainBody body'>
@@ -15,20 +15,13 @@ function Body({recipes, ipcRenderer}) {
                         </div>    
                 </div>
             }
-            
 
-            <span>{JSON.stringify(recipes)}</span>
-
-            <button onClick={() => {
-                ipcRenderer.recipes.add(recipes, {name: 'Some good pasta'})
-            }}>add</button>
-            <button onClick={() => {
-                ipcRenderer.recipes.remove(recipes, '51fc18d5-b8f2-49b5-a687-a3215a679d58')
-            }}>remove</button>
-            <button onClick={() => {
-                ipcRenderer.recipes.clear()
-            }}>clear</button>
-
+            {recipes.map(recipe => (
+                <div className='recipe-preview' key={recipe.id}>
+                    <img src={recipe.image} alt=''/>
+                    <h2>{recipe.name}</h2>
+                </div>
+            ))}
             
         </div>
     )

@@ -10,7 +10,6 @@
 }
 
 .create-box {
-    user-select: none;
     background-color: var(--primary-background);
     border: var(--primary-dark) solid 3px;
     border-radius: 10px;
@@ -265,4 +264,10 @@
     padding: 10px;
     width: 80%;
     height: 200px;
+}
+
+.create-box .create-box-submit-recipe-button {
+    margin: 30px auto;
+    display: block;
+    font-size: 25px;
 }

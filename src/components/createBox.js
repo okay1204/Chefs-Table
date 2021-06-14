@@ -19,7 +19,8 @@ class CreateBox extends React.Component {
         
         this.state = {
             openAnimating: true,
-            closeAnimation: null,
+            closeAnimating: false,
+            refreshRecipes: false,
             urlError: null,
             url: '',
             urlLoading: false,
@@ -38,7 +39,8 @@ class CreateBox extends React.Component {
         
         this.handleUrlInput = this.handleUrlInput.bind(this)
         this.addIngredient = this.addIngredient.bind(this)
-        this.getImage = this.getImage.bind(this)     
+        this.getImage = this.getImage.bind(this)   
+        this.addRecipe = this.addRecipe.bind(this)  
     }
     
     componentDidMount() {
@@ -58,13 +60,15 @@ class CreateBox extends React.Component {
 
         this.setState({urlLoading: true})
 
-        this.props.ipcRenderer.recipes.webscrape(url)
-        .then((recipeData) => {
+        this.props.ipcRenderer.invoke('recipes:webscrape', url)
+        .then(({error, data: recipeData}) => {
+            if (error) throw error
 
             this.setState({
                 inputIngredients: {},
                 ingredientIdCount: 0
             })
+
             recipeData.ingredients.forEach((ingredient) => {
                 this.addIngredient(ingredient)
             })
@@ -84,12 +88,17 @@ class CreateBox extends React.Component {
         })
         .catch((error) => {
             let urlError
-            if (error.code === 'DOMAIN_UNSUPPORTED') {
-                urlError = 'Website not supported'
-            } else if (error.code === 'DOMAIN_REQUEST_ERROR') {
-                urlError = 'Failed request, is the URL correct?'
-            } else {
-                urlError = 'Invalid recipe URL'
+
+            switch (error.code) {
+                case 'DOMAIN_UNSUPPORTED':
+                    urlError = 'Website not supported'
+                    break
+                case 'DOMAIN_REQUEST_ERROR':
+                    urlError = 'Failed request, is the URL correct?'
+                    break
+                default:
+                    urlError = 'Invalid recipe URL' 
+                    break
             }
 
             this.setState({urlError})
@@ -124,18 +133,64 @@ class CreateBox extends React.Component {
                 })
             } else {
                 let imageError
-                if (result.code === 'REQUEST_FAILED') {
-                    imageError = 'Failed request, is the URL correct?'
-                } else if (result.code === 'NOT_IMAGE_URL') {
-                    imageError = 'URL is not a direct image link'
-                } else if (result.code === 'UNSUPPORTED_TYPE') {
-                    imageError = 'Only png, jpg, jpeg, and webp image formats are supported'
+
+                switch (result.code) {
+                    case 'REQUEST_FAILED':
+                        imageError = 'Failed request, is the URL correct?'
+                        break
+                    case 'NOT_IMAGE_URL':
+                        imageError = 'URL is not a direct image link'
+                        break
+                    case 'UNSUPPORTED_TYPE':
+                        imageError = 'Only png, jpg, jpeg, and webp image formats are supported'
+                        break
+                    default:
+                        imageError = 'An unknown error occured'
+                        break
                 }
                 
                 this.setState({imageError})
             }
 
             this.setState({imageLoading: false})
+        })
+    }
+
+    addRecipe() {
+        const url = this.state.url
+
+        const imageType = this.state.image.type
+        const image = this.state.image.data
+
+        const name = this.state.inputName ? this.state.inputName : 'Unnamed Recipe'
+        const protein = this.state.inputProtein ? this.state.inputProtein : null
+        
+        const meals = []
+        for (const [key, value] of Object.entries(this.state.inputMeal)) {
+            if (value) {
+                meals.push(key);
+            }
+        }
+
+        const instructions = this.state.inputInstructions
+        
+        const ingredients = []
+        Object.values(this.state.inputIngredients).forEach(ingredient => ingredients.push(ingredient))
+
+        this.props.ipcRenderer.invoke('recipes:add', {
+            url,
+            imageType,
+            image,
+            name,
+            protein,
+            meals,
+            instructions,
+            ingredients
+        })
+
+        this.setState({
+            closeAnimating: true,
+            refreshRecipes: true
         })
     }
 
@@ -169,19 +224,23 @@ class CreateBox extends React.Component {
         return (
             <div className='create-box-wrapper'>
                 {
-                    !this.state.closeAnimation && 
+                    !this.state.closeAnimating && 
                     <div className='create-box-background'><wbr /></div>
                 }
 
-                <div className={`create-box ${this.state.closeAnimation ? this.state.closeAnimation : ''}`} onAnimationEnd={() => {
-                    if (this.state.closeAnimation) {
+                <div className={`create-box ${this.state.closeAnimating ? 'create-box-animate-out' : ''}`} onAnimationEnd={() => {
+                    if (this.state.closeAnimating) {
+                        if (this.state.refreshRecipes) {
+                            this.props.refreshRecipes()
+                        }
+
                         this.props.unmount()
                     } else {
                         this.setState({ openAnimating: false })
                     }
                 }}>
 
-                    {!this.state.openAnimating && <img className='create-box-close' src={CloseBlack} alt='close' onClick={() => this.setState({closeAnimation: 'create-box-animate-out'})}/>}
+                    {!this.state.openAnimating && <img className='create-box-close' src={CloseBlack} alt='close' onClick={() => this.setState({closeAnimating: true})}/>}
                     <h1>Add Recipe</h1>
 
                     <div className='create-box-url-input-wrapper'>
@@ -216,7 +275,6 @@ class CreateBox extends React.Component {
                                         key={website}
                                         ipcRenderer={this.props.ipcRenderer}
                                         href={domain}
-                                        onClick={() => this.props.ipcRenderer.send('main:loadGH', domain)}
                                     >
                                         {website}
                                     </OutsideAnchor>
@@ -230,7 +288,8 @@ class CreateBox extends React.Component {
                     <h3>Image</h3>
                     <div className='create-box-image-select'>
                         <button onClick={() => {
-                            this.props.ipcRenderer.invoke('main:readImage').then(data => {
+                            this.props.ipcRenderer.invoke('main:readImage')
+                            .then(data => {
                                 if (data) {
                                     this.setState({
                                         image: {
@@ -319,6 +378,9 @@ class CreateBox extends React.Component {
                         {ingredientsHTML}
                     </ul>
                     <button className='create-box-add-ingredient' onClick={() => this.addIngredient('')}>+</button>
+                    
+                    <br />
+                    <button className='create-box-submit-recipe-button' onClick={this.addRecipe}>Add Recipe</button>
 
                 </div>
             </div>

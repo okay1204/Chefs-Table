@@ -87,18 +87,20 @@ app.on('activate', () => {
     }
 })
 
-const DATABASE_PATH = isDev
-? path.join(path.dirname(__dirname), 'dev', 'chefs-table.db')
-: path.join(app.getPath('userData'), 'chefs-table.db')
+const RESOURCE_PATH = isDev
+? path.join(path.dirname(__dirname), 'dev')
+: app.getPath('userData')
+
+const DATABASE_PATH = path.join(RESOURCE_PATH, 'chefs-table.db')
+const IMAGES_PATH = path.join(RESOURCE_PATH, '/images')
+fs.mkdir(IMAGES_PATH, { recursive: true })
 
 const db = new Database(DATABASE_PATH)
 
 // set up all tables
-db.prepare('CREATE TABLE IF NOT EXISTS recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, imageUrl TEXT, protien TEXT, meal TEXT, instructions TEXT)').run()
+db.prepare('CREATE TABLE IF NOT EXISTS recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, image TEXT, name TEXT, protein TEXT, instructions TEXT)').run()
 db.prepare('CREATE TABLE IF NOT EXISTS ingredients (id INTEGER PRIMARY KEY AUTOINCREMENT, recipeId INTEGER NOT NULL, ingredient TEXT)').run()
 db.prepare('CREATE TABLE IF NOT EXISTS meals (id INTEGER PRIMARY KEY AUTOINCREMENT, recipeId INTEGER NOT NULL, meal TEXT)').run()
-
-
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
@@ -161,20 +163,55 @@ ipcMain.handle('main:readImage', async () => {
 
 // Recipes
 
-ipcMain.handle('recipes:read', async () => {
-    return db.prepare('SELECT * FROM recipes').all()
+ipcMain.handle('recipes:readPage', async (event, page) => {
+    const recipes = db.prepare('SELECT id, image, name FROM recipes ORDER BY id DESC LIMIT 25 OFFSET ?').all((page - 1) * 25)
+
+    for (i = 0; i < recipes.length; i++) {
+        recipe = recipes[i]
+
+        if (recipe.image === 'local') {
+            recipe.image = await fs.readFile(path.join(IMAGES_PATH, String(recipe.id)))
+        }
+    }
+
+    return recipes
 })
 
 ipcMain.handle('recipes:add', async (event, newRecipe) => {
+
+    const newRecipeTemplate = {
+        url: newRecipe.url,
+        name: newRecipe.name,
+        protein: newRecipe.protein,
+        instructions: newRecipe.instructions
+    }
     
-    const columns = Object.keys(newRecipe).join(', ')
-    const values = new Array(Object.values(newRecipe).length + 1).join('?').split('').join(', ')
+    const columns = Object.keys(newRecipeTemplate).join(', ')
+    const values = new Array(Object.values(newRecipeTemplate).length + 1).join('?').split('').join(', ')
+    
+    const { lastInsertRowid } = db.prepare(`INSERT INTO recipes (${columns}) VALUES (${values})`).run(...Object.values(newRecipeTemplate))
+    newRecipeTemplate.id = lastInsertRowid
+    
+    // after getting the id, update with the image
+    let image;
+    if (newRecipe.imageType === 'url') {
+        image = newRecipe.image
+    } else {
+        image = 'local'
+        fs.writeFile(path.join(IMAGES_PATH, String(lastInsertRowid)), newRecipe.image)
+    }
+    
+    db.prepare('UPDATE recipes SET image = ? WHERE id = ?').run(image, lastInsertRowid)
 
-    const { lastInsertRowid } = db.prepare(`INSERT INTO recipes (${columns}) VALUES (${values})`).run(...Object.values(newRecipe))
+    // add all ingredients
+    const addIngredient = db.prepare('INSERT INTO ingredients (recipeId, ingredient) VALUES (?, ?)')
+    newRecipe.ingredients.forEach(ingredient => addIngredient.run(lastInsertRowid, ingredient))
 
-    newRecipe.id = lastInsertRowid
-
-    return newRecipe
+    // add all meals
+    const addMeal = db.prepare('INSERT INTO meals (recipeId, meal) VALUES (?, ?)')
+    newRecipe.meals.forEach(meal => addMeal.run(lastInsertRowid, meal))
+    
+    return newRecipeTemplate
 })
 
 ipcMain.handle('recipes:webscrape', async (event, url) => {
@@ -203,29 +240,5 @@ ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
 
 ipcMain.handle('recipes:clear', async () => {
     db.prepare('DELETE FROM recipes').run()
-    return []
-})
-
-// Ingredients
-
-ipcMain.handle('ingredients:add', async (event, ingredient) => {
-    const { lastInsertRowid } = db.prepare('INSERT INTO ingredients (recipeId, ingredient) VALUES (?, ?)').run(ingredient.recipeId, ingredient.ingredient)
-    
-    ingredient.id = lastInsertRowid
-    
-    return ingredient
-})
-
-ipcMain.handle('ingredients:remove', async (event, ingredientIdToRemove) => {
-    const removedIngredient = db.prepare('SELECT * FROM ingredients WHERE id = ?').get(ingredientIdToRemove)
-
-    db.prepare('DELETE FROM ingredients WHERE id = ?').run(ingredientIdToRemove)
-
-    return removedIngredient
-})
-
-ipcMain.handle('ingredients:clear', async (event, recipeId) => {
-    db.prepare('DELETE FROM ingredients WHERE recipeId = ?').run(recipeId)
-    
     return []
 })

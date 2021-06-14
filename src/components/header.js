@@ -76,7 +76,7 @@ class Header extends React.Component {
                 {/* large create box */}
                 {
                     this.state.createBox &&
-                    <CreateBox unmount={() => this.setState({createBox: false})} ipcRenderer={this.props.ipcRenderer} initialValue={this.state.createBox}/>
+                    <CreateBox unmount={() => this.setState({createBox: false})} refreshRecipes={this.props.refreshRecipes} ipcRenderer={this.props.ipcRenderer} recipes={this.props.recipes} initialValue={this.state.createBox}/>
                 }
     
             </div>
