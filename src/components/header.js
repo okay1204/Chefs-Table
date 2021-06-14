@@ -1,16 +1,16 @@
-import '../styles/header.css';
-import React from 'react';
-import CreateBox from './createBox.js';
+import '../styles/header.css'
+import React from 'react'
+import CreateBox from './createBox.js'
 
-import ClickOutside from '../components/clickOutside.js';
-import AddCircleEmerald from '../images/addCircleEmerald.png';
-import ExpandEmerald from '../images/expandEmerald.png';
+import ClickOutside from '../components/clickOutside.js'
+import AddCircleEmerald from '../images/addCircleEmerald.png'
+import ExpandEmerald from '../images/expandEmerald.png'
 
 
 class Header extends React.Component {
 
     constructor() {
-        super();
+        super()
 
         this.state = {
             miniCreateBox: false,
@@ -18,7 +18,7 @@ class Header extends React.Component {
             createBox: false
         }
 
-        this.miniCreateBoxUrlInput = React.createRef();
+        this.miniCreateBoxUrlInput = React.createRef()
     }
 
     render() {
@@ -28,14 +28,14 @@ class Header extends React.Component {
                     <button className='add-recipe-button' onClick={() => {
 
                         if (this.state.miniCreateBox) {
-                            this.miniCreateBoxUrlInput.current.blur();
+                            this.miniCreateBoxUrlInput.current.blur()
                         } else {
-                            this.miniCreateBoxUrlInput.current.focus();
+                            this.miniCreateBoxUrlInput.current.focus()
                         }
 
                         this.setState({
                             miniCreateBox: !this.state.miniCreateBox
-                        });
+                        })
 
                     }}>
                         <img src={AddCircleEmerald} alt='Add a new recipe' />
@@ -52,13 +52,13 @@ class Header extends React.Component {
                                     this.setState({
                                         createBox: {sendRequest: true, url: this.state.miniCreateBoxUrl},
                                         miniCreateBox: false
-                                    });
+                                    })
                                 }
                             }}
                             onChange={(event) => {
                                 this.setState({
                                     miniCreateBoxUrl: event.target.value
-                                });
+                                })
                             }}
                         />
                         <button className='mini-create-box-expand-wrapper'>
@@ -82,6 +82,6 @@ class Header extends React.Component {
             </div>
         )
     }
-};
+}
 
-export default Header;
+export default Header

@@ -6,4 +6,4 @@ function OutsideAnchor({children, className, ipcRenderer, href}) {
     )
 }
 
-export default OutsideAnchor;
+export default OutsideAnchor

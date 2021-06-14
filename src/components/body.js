@@ -1,6 +1,6 @@
-import React from 'react';
+import React from 'react'
 
-import AddCircleBlack from '../images/addCircleBlack.png';
+import AddCircleBlack from '../images/addCircleBlack.png'
 
 function Body({recipes, ipcRenderer}) {
 
@@ -32,6 +32,6 @@ function Body({recipes, ipcRenderer}) {
             
         </div>
     )
-};
+}
 
-export default Body;
+export default Body
