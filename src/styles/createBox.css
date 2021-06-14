@@ -45,9 +45,9 @@
 
 .create-box-close {
     width: 40px;
-    position: absolute;
-    right: 5px;
-    top: 5px;
+    position: fixed;
+    right: 60px;
+    top: 60px;
 }
 
 .create-box-close:hover {

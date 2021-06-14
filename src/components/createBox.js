@@ -18,7 +18,8 @@ class CreateBox extends React.Component {
         this.meals.forEach((meal) => mealObj[meal] = false)
         
         this.state = {
-            animation: null,
+            openAnimating: true,
+            closeAnimation: null,
             urlError: null,
             url: '',
             urlLoading: false,
@@ -168,17 +169,19 @@ class CreateBox extends React.Component {
         return (
             <div className='create-box-wrapper'>
                 {
-                    !this.state.animation && 
+                    !this.state.closeAnimation && 
                     <div className='create-box-background'><wbr /></div>
                 }
 
-                <div className={`create-box ${this.state.animation ? this.state.animation : ''}`} onAnimationEnd={() => {
-                    if (this.state.animation) {
+                <div className={`create-box ${this.state.closeAnimation ? this.state.closeAnimation : ''}`} onAnimationEnd={() => {
+                    if (this.state.closeAnimation) {
                         this.props.unmount()
+                    } else {
+                        this.setState({ openAnimating: false })
                     }
                 }}>
 
-                    <img className='create-box-close' src={CloseBlack} alt='close' onClick={() => this.setState({animation: 'create-box-animate-out'})}/>
+                    {!this.state.openAnimating && <img className='create-box-close' src={CloseBlack} alt='close' onClick={() => this.setState({closeAnimation: 'create-box-animate-out'})}/>}
                     <h1>Add Recipe</h1>
 
                     <div className='create-box-url-input-wrapper'>
@@ -296,7 +299,7 @@ class CreateBox extends React.Component {
                             this.meals
                             .map((meal) => (
                                 <div className='create-box-checkbox-wrapper' key={meal}>
-                                    <input type='checkbox' id={`create-box-${meal}`} name={meal} onChange={(event) => {
+                                    <input type='checkbox' id={`create-box-${meal}`} name={meal} value={this.state.inputMeal[meal]} onChange={(event) => {
                                         const newMeal = this.state.inputMeal
                                         newMeal[meal] = event.target.checked
                                         
