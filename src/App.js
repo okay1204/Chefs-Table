@@ -1,36 +1,36 @@
-import './App.css';
-import React from 'react';
+import './App.css'
+import React from 'react'
 
-import Header from './components/header.js';
+import Header from './components/header.js'
 import Body from './components/body.js'
 
-import ipcRendererStateManager from './ipcRendererStateManager.js';
+import ipcRendererStateManager from './ipcRendererStateManager.js'
 
-const { ipcRenderer: rawIpcRenderer } = window.require('electron');
+const { ipcRenderer: rawIpcRenderer } = window.require('electron')
 
 
 class App extends React.Component {
 
     constructor() {
-        super();
+        super()
         this.state = {
             recipes: [],
-        };
+        }
 
-        this.ipcRenderer = ipcRendererStateManager;
-        this.ipcRenderer.initialize(rawIpcRenderer, (newRecipes) => this.setState({recipes: newRecipes}));
+        this.ipcRenderer = ipcRendererStateManager
+        this.ipcRenderer.initialize(rawIpcRenderer, (newRecipes) => this.setState({recipes: newRecipes}))
 
         this.setCreateBox = this.setCreateBox.bind(this)
     }
 
     setCreateBox(value) {
-        this.setState({createBox: value});
+        this.setState({createBox: value})
     }
 
     componentDidMount() {
         this.ipcRenderer.invoke('recipes:read').then((recipes) => {
-            this.setState({recipes});
-        });
+            this.setState({recipes})
+        })
     }
 
     render() {
@@ -47,8 +47,8 @@ class App extends React.Component {
                 />
     
             </div>
-        );
+        )
     }
 }
 
-export default App;
+export default App
