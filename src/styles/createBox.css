@@ -157,23 +157,29 @@
 .create-box-image-wrapper {
     width: 50%;
     margin: 0 auto;
-    position: relative;
+    display: flex;
+    justify-content: center;
 }
 
-.create-box-image-delete {
-    position: absolute;
-    left: -50px;
+.create-box-image-delete-wrapper {
+    position: relative;
+    width: 0;
     cursor: pointer;
+}
+
+.create-box-image-delete-wrapper img {
+    position: absolute;
+    right: 0;
     transition: all ease 100ms;
 }
 
-.create-box-image-delete:hover {
+.create-box-image-delete-wrapper img:hover {
     transform: scale(1.2);
     opacity: 0.9;
 }
 
 .create-box-image {
-    width: 100%;
+    width: min(100%, fit-content);
     border: var(--primary-bright) 2px dotted;
     border-radius: 10px;
 }

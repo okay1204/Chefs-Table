@@ -25,7 +25,7 @@ class CreateBox extends React.Component {
             websiteList: false,
             inputImage: '',
             imageError: null,
-            image: null,
+            image: {},
             inputName: '',
             inputProtein: '',
             inputMeal: mealObj,
@@ -103,7 +103,9 @@ class CreateBox extends React.Component {
         this.props.ipcRenderer.invoke('main:isImageUrl', url)
         .then(result => {
             if (result.isImage) {
-                this.setState({image: url});
+                this.setState({
+                    image: { type: 'url', data: url }
+                });
             } else {
                 let imageError;
                 if (result.code === 'REQUEST_FAILED') {
@@ -207,8 +209,21 @@ class CreateBox extends React.Component {
 
                     <h3>Image</h3>
                     <div className='create-box-image-select'>
-                        <button>Browse your files</button>
+                        <button onClick={() => {
+                            this.props.ipcRenderer.invoke('main:readImage').then(data => {
+                                if (data) {
+                                    this.setState({
+                                        image: {
+                                            type: 'binary',
+                                            data
+                                        }
+                                    })
+                                }
+                            })
+                        }}>Browse your files</button>
+
                         <span>or</span>
+
                         <div className='create-box-paste-image-url-wrapper'>
                             <input type='text' placeholder='Image URL..' value={this.state.inputImage} onChange={(event) => {              
                                 this.setState({inputImage: event.target.value});
@@ -225,11 +240,20 @@ class CreateBox extends React.Component {
                     {this.state.imageError && <span className='create-box-image-error'>{this.state.imageError}</span>}
 
                     {   
-                        this.state.image &&
+                        this.state.image.type &&
                         <div className='create-box-image-wrapper'>
-                            {/* eslint-disable-next-line */}
-                            <img className='create-box-image-delete' src={CloseRed} alt='Delete recipe image' onClick={() => this.setState({image: null})}/>
-                            <img className='create-box-image' src={this.state.image} alt=''/>
+                            <div className='create-box-image-delete-wrapper'>
+                                {/* eslint-disable-next-line */}
+                                <img src={CloseRed} alt='Delete recipe image' onClick={() => this.setState({image: {}})}/>
+                            </div>
+                            <img className='create-box-image'
+                                src={
+                                    this.state.image.type === 'url' ?
+                                    this.state.image.data
+                                    : // decode image from binary
+                                    URL.createObjectURL(new Blob([this.state.image.data]))
+                                }
+                            alt='' />
                         </div>
                     }
 

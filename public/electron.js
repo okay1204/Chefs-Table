@@ -1,6 +1,7 @@
 const path = require('path');
-const { app, ipcMain, BrowserWindow, shell } = require('electron');
+const { app, ipcMain, BrowserWindow, shell, dialog } = require('electron');
 const isDev = require('electron-is-dev');
+const fs = require('fs').promises;
 const { WebScrape } = require('./webscrape.js');
 const Database = require('better-sqlite3');
 const axios = require('axios');
@@ -19,9 +20,11 @@ if (require('electron-squirrel-startup')) {
     app.quit();
 }
 
+let mainWindow;
+
 function createWindow() {
     // Create the browser window.
-    const win = new BrowserWindow({
+    mainWindow = new BrowserWindow({
     width: 1000,
     height: 800,
     webPreferences: {
@@ -33,12 +36,10 @@ function createWindow() {
 
     // Hide top menu bar during production
     if (!isDev) {
-        win.setMenuBarVisibility(false)
+        mainWindow.setMenuBarVisibility(false)
     }
 
-    // and load the index.html of the app.
-    // win.loadFile('index.html');
-    win.loadURL(
+    mainWindow.loadURL(
     isDev
         ? 'http://localhost:3000'
         : `file://${path.join(__dirname, '../build/index.html')}`
@@ -46,11 +47,11 @@ function createWindow() {
 
     // Open the DevTools.
     if (isDev) {
-        win.webContents.on("did-frame-finish-load", () => {
-            win.webContents.once("devtools-opened", () => {
-                win.focus();
+        mainWindow.webContents.on("did-frame-finish-load", () => {
+            mainWindow.webContents.once("devtools-opened", () => {
+                mainWindow.focus();
             });
-            win.webContents.openDevTools();
+            mainWindow.webContents.openDevTools();
         });
     }
 }
@@ -137,6 +138,23 @@ ipcMain.handle('main:isImageUrl', async (event, url) => {
             isImage: true,
             code: 'SUCCESS'
         };
+    }
+})
+
+ipcMain.handle('main:readImage', async () => {
+    const { filePaths } = await dialog.showOpenDialog(mainWindow, {
+        title: 'Choose Image',
+        buttonLabel: 'Choose Image',
+        filters: [
+            { name: 'Images', extensions: ['png', 'jpeg', 'jpg', 'webp'] }
+        ]
+    });
+
+    if (filePaths.length > 0) {
+        data = await fs.readFile(filePaths[0]);
+        return data;
+    } else {
+        return null;
     }
 })
 
