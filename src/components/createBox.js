@@ -21,11 +21,12 @@ class CreateBox extends React.Component {
             animation: null,
             urlError: null,
             url: '',
-            loading: false,
+            urlLoading: false,
             websiteList: false,
             inputImage: '',
             imageError: null,
             image: {},
+            imageLoading: false,
             inputName: '',
             inputProtein: '',
             inputMeal: mealObj,
@@ -54,7 +55,7 @@ class CreateBox extends React.Component {
     handleUrlInput(url) {
         if (!url) return;
 
-        this.setState({loading: true})
+        this.setState({urlLoading: true})
 
         this.props.ipcRenderer.recipes.webscrape(url)
         .then((recipeData) => {
@@ -68,8 +69,15 @@ class CreateBox extends React.Component {
             })
 
             this.setState({
+                image: recipeData.imageUrl ? {
+                    type: 'url',
+                    data: recipeData.imageUrl
+                }
+                : {},
+                inputImage: recipeData.imageUrl ? recipeData.imageUrl : '',
                 inputName: recipeData.name,
-                inputProtein: recipeData.protein ? recipeData.protein : ''
+                inputProtein: recipeData.protein ? recipeData.protein : '',
+                inputInstructions: recipeData.instructions
             })
         })
         .catch((error) => {
@@ -85,7 +93,7 @@ class CreateBox extends React.Component {
             this.setState({urlError})
         })
         .finally(() => {
-            this.setState({loading: false})
+            this.setState({urlLoading: false})
         });
     }
 
@@ -100,6 +108,9 @@ class CreateBox extends React.Component {
     }
 
     getImage(url) {
+
+        this.setState({imageLoading: true});
+
         this.props.ipcRenderer.invoke('main:isImageUrl', url)
         .then(result => {
             if (result.isImage) {
@@ -118,6 +129,8 @@ class CreateBox extends React.Component {
                 
                 this.setState({imageError})
             }
+
+            this.setState({imageLoading: false});
         })
     }
 
@@ -177,8 +190,11 @@ class CreateBox extends React.Component {
                         onChange={(event) => {
                             this.setState({url: event.target.value});
                         }}/>
-                        {this.state.loading && <img className='create-box-loading-wheel' src={LoadingWheel} alt='loading'/>}
-                        <button className='create-box-autofill-button' onClick={() => this.handleUrlInput(this.state.url)}>Autofill</button>
+                        {this.state.urlLoading && <img className='create-box-url-loading-wheel' src={LoadingWheel} alt='loading'/>}
+                        <button className='create-box-autofill-button' onClick={() => {
+                            this.handleUrlInput(this.state.url);
+                            this.setState({urlError: null});
+                        }}>Autofill</button>
                     </div>
 
                     {this.state.urlError && <span className='create-box-url-error'>{this.state.urlError}</span>}
@@ -234,7 +250,13 @@ class CreateBox extends React.Component {
                                     this.setState({imageError: null});
                                 }
                             }}/>
-                            <button onClick={(event) => this.getImage(this.state.inputImage)}>Grab Image</button>
+
+                            {this.state.imageLoading && <img className='create-box-image-loading-wheel' src={LoadingWheel} alt='loading'/>}
+
+                            <button onClick={() => {
+                                this.getImage(this.state.inputImage);
+                                this.setState({imageError: null})
+                            }}>Grab Image</button>
                         </div>
                     </div>
                     {this.state.imageError && <span className='create-box-image-error'>{this.state.imageError}</span>}

@@ -31,7 +31,7 @@
     animation: zoomOut ease 250ms;
 }
 
-.create-box-loading-wheel {
+.create-box-url-loading-wheel {
     width: 40px;
 }
 
@@ -161,6 +161,17 @@
     justify-content: center;
 }
 
+.create-box-image {
+    max-width: 100%;
+    border: var(--primary-bright) 2px dotted;
+    border-radius: 10px;
+}
+
+.create-box-image-loading-wheel {
+    width: 40px;
+    margin-right: 20px;
+}
+
 .create-box-image-delete-wrapper {
     position: relative;
     width: 0;
@@ -178,11 +189,6 @@
     opacity: 0.9;
 }
 
-.create-box-image {
-    width: min(100%, fit-content);
-    border: var(--primary-bright) 2px dotted;
-    border-radius: 10px;
-}
 
 .create-box-input-grid {
     display: grid;
