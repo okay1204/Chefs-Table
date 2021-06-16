@@ -88,13 +88,22 @@ class WebScrape {
 
         const instructions = data.recipeInstructions.map((step) => step.text).join('')
 
+        const timeString = data.totalTime.split('T')[1]
+        const hours = parseInt(timeString.split('H')[0], 10)
+        const minutes = parseInt(timeString.split('H')[1].replace('M', ''), 10)
+
+        const servings = parseInt(data.recipeYield.split(' ')[0], 10)
+
         return {
             url,
             name,
             imageUrl: data.image.url,
             protein,
             ingredients,
-            instructions
+            instructions,
+            hours,
+            minutes,
+            servings
         }
     }
 
@@ -122,7 +131,38 @@ class WebScrape {
         }
 
         let instructions = root.querySelectorAll('.recipe-steps li')
-        instructions = instructions.map((step) => step.innerText).join('\n')
+        instructions = instructions.map(step => step.innerText).join('\n')
+
+        const totalTime = root.querySelector('.recipe-time + span').innerText
+
+        let minutes
+        
+        try {
+            minutes = parseInt(/[0-9]*\ minutes/.exec(totalTime)[0].split(' ')[0], 10)
+        } catch {
+            minutes = 0
+        }
+
+        let hours
+
+        try {
+            hours = parseInt(/[0-9]*\ hours/.exec(totalTime)[0].split(' ')[0], 10)
+        } catch {
+            hours = 0
+        }
+
+        let servingsText = root.querySelector('.recipe-yield + span').innerText.split(' ')
+        let servings = 0
+        
+        // go through each word and look for a number
+        servingsText.forEach(word => {
+
+            const intWord = parseInt(word, 10)
+
+            if (intWord) {
+                servings = intWord
+            }
+        })
 
         return {
             url,
@@ -130,7 +170,10 @@ class WebScrape {
             imageUrl,
             protein,
             ingredients,
-            instructions
+            instructions,
+            hours,
+            minutes,
+            servings
         }
     }
 
@@ -166,8 +209,8 @@ class WebScrape {
     // }
 }
 
-// WebScrape.getRecipeData('https://cooking.nytimes.com/recipes/1020252-dirty-horchata?action=click&region=Sam%20Sifton%27s%20Suggestions&rank=5').then((result) => {
-//     console.log(result)
+// WebScrape.getRecipeData('https://cooking.nytimes.com/recipes/1018131-braai-spiced-t-bone-steaks?action=click&module=Global%20Search%20Recipe%20Card&pgType=search&rank=16').then((result) => {
+//      console.log(result)
 // })
 
 module.exports = { WebScrape, DomainUnsupportedError, DomainRequestError }

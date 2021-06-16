@@ -113,7 +113,7 @@ input[type="checkbox"]:checked::after {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #64d4a0;
 }
 
 /* Fonts */

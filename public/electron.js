@@ -98,7 +98,7 @@ fs.mkdir(IMAGES_PATH, { recursive: true })
 const db = new Database(DATABASE_PATH)
 
 // set up all tables
-db.prepare('CREATE TABLE IF NOT EXISTS recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, image TEXT, name TEXT, protein TEXT, instructions TEXT)').run()
+db.prepare('CREATE TABLE IF NOT EXISTS recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, image TEXT, name TEXT, protein TEXT, totalMinutes INTEGER, servings INTEGER, instructions TEXT)').run()
 db.prepare('CREATE TABLE IF NOT EXISTS ingredients (id INTEGER PRIMARY KEY AUTOINCREMENT, recipeId INTEGER NOT NULL, ingredient TEXT)').run()
 db.prepare('CREATE TABLE IF NOT EXISTS meals (id INTEGER PRIMARY KEY AUTOINCREMENT, recipeId INTEGER NOT NULL, meal TEXT)').run()
 
@@ -164,7 +164,7 @@ ipcMain.handle('main:readImage', async () => {
 // Recipes
 
 ipcMain.handle('recipes:readPage', async (event, page) => {
-    const recipes = db.prepare('SELECT id, image, name FROM recipes ORDER BY id DESC LIMIT 25 OFFSET ?').all((page - 1) * 25)
+    let recipes = db.prepare('SELECT id, image, name FROM recipes ORDER BY id DESC LIMIT 25 OFFSET ?').all((page - 1) * 25)
 
     for (i = 0; i < recipes.length; i++) {
         recipe = recipes[i]
@@ -177,13 +177,31 @@ ipcMain.handle('recipes:readPage', async (event, page) => {
     return recipes
 })
 
+ipcMain.handle('recipes:readRecipe', async (event, recipeId) => {
+    const recipe = db.prepare('SELECT * FROM recipes WHERE id = ?').get(recipeId)
+
+    if (recipe.image === 'local') {
+        recipe.image = await fs.readFile(path.join(IMAGES_PATH, String(recipeId)))
+    }
+
+    const ingredients = db.prepare('SELECT ingredient FROM ingredients WHERE recipeId = ?').all(recipeId)
+    recipe.ingredients = ingredients.map((ingredient) => Object.values(ingredient)[0])
+
+    const meals = db.prepare('SELECT meal FROM meals WHERE recipeId = ?').all(recipeId)
+    recipe.meals = meals.map((meal) => Object.values(meal)[0])
+
+    return recipe
+})
+
 ipcMain.handle('recipes:add', async (event, newRecipe) => {
 
     const newRecipeTemplate = {
         url: newRecipe.url,
         name: newRecipe.name,
         protein: newRecipe.protein,
-        instructions: newRecipe.instructions
+        instructions: newRecipe.instructions,
+        totalMinutes: newRecipe.totalMinutes,
+        servings: newRecipe.servings
     }
     
     const columns = Object.keys(newRecipeTemplate).join(', ')

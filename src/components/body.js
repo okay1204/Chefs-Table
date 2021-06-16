@@ -1,8 +1,12 @@
+import '../styles/body.css'
 import React from 'react'
+import RecipeBox from './recipeBox.js'
 
 import AddCircleBlack from '../images/addCircleBlack.png'
 
-function Body({recipes, recipePage}) {
+function Body({recipes, recipePage, ipcRenderer}) {
+
+    const [recipeBoxId, setRecipeBoxId] = React.useState(null)
 
     return (
         <div className='MainBody body'>
@@ -16,12 +20,20 @@ function Body({recipes, recipePage}) {
                 </div>
             }
 
-            {recipes.map(recipe => (
-                <div className='recipe-preview' key={recipe.id}>
-                    <img src={recipe.image} alt=''/>
-                    <h2>{recipe.name}</h2>
-                </div>
-            ))}
+            <div className='recipe-preview-list'>
+                {recipes.map(recipe => (
+                    <div className='recipe-preview' key={recipe.id} onClick={() => setRecipeBoxId(recipe.id)}>
+                        <div className='recipe-preview-image-wrapper'>
+                            <img src={recipe.image} alt=''/>
+                        </div>
+                        <h2>{recipe.name}</h2>
+                    </div>
+                ))}
+            </div>
+
+            {
+                recipeBoxId && <RecipeBox recipeId={recipeBoxId} ipcRenderer={ipcRenderer} unmount={() => setRecipeBoxId(null)}/>
+            }
             
         </div>
     )

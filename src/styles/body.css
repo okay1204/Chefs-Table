@@ -1,0 +1,42 @@
+.recipe-preview-list {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: fit-content;
+}
+
+.recipe-preview {
+    background-color: var(--primary-background);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 15px;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all ease 150ms;
+    border: 2px var(--primary-bright) solid;
+}
+
+.recipe-preview:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+
+.recipe-preview-image-wrapper img {
+    height: 250px;
+    width: 250px;
+    object-fit: cover;
+}
+
+.recipe-preview h2 {
+    margin: 0 auto;
+    display: block;
+    width: 250px;
+    padding: 10px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 17px;
+}

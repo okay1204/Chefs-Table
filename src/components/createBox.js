@@ -31,6 +31,9 @@ class CreateBox extends React.Component {
             imageLoading: false,
             inputName: '',
             inputProtein: '',
+            inputHours: 0,
+            inputMinutes: 0,
+            inputServings: 0,
             inputMeal: mealObj,
             inputInstructions: '',
             inputIngredients: {},
@@ -83,7 +86,10 @@ class CreateBox extends React.Component {
                 inputImage: recipeData.imageUrl ? recipeData.imageUrl : '',
                 inputName: recipeData.name,
                 inputProtein: recipeData.protein ? recipeData.protein : '',
-                inputInstructions: recipeData.instructions
+                inputInstructions: recipeData.instructions,
+                inputHours: recipeData.hours,
+                inputMinutes: recipeData.minutes,
+                inputServings: recipeData.servings
             })
         })
         .catch((error) => {
@@ -177,6 +183,10 @@ class CreateBox extends React.Component {
         const ingredients = []
         Object.values(this.state.inputIngredients).forEach(ingredient => ingredients.push(ingredient))
 
+        const totalMinutes = (this.state.inputHours * 60) + this.state.inputMinutes
+        
+        const servings = this.state.inputServings
+
         this.props.ipcRenderer.invoke('recipes:add', {
             url,
             imageType,
@@ -185,7 +195,9 @@ class CreateBox extends React.Component {
             protein,
             meals,
             instructions,
-            ingredients
+            ingredients,
+            totalMinutes,
+            servings
         })
 
         this.setState({
@@ -346,9 +358,36 @@ class CreateBox extends React.Component {
                         }}/>
 
                         <label htmlFor='create-box-protein'>Protein</label>
-                        <input type='text' name='create-box-protein' placeholder='Main Protein... (leave blank if none)' value={this.state.inputProtein} onChange={(event) => {
+                        <input type='text' id='create-box-protein' name='protein' placeholder='Main Protein... (leave blank if none)' value={this.state.inputProtein} onChange={(event) => {
                             this.setState({inputProtein: event.target.value})
                         }}/>
+
+                    </div>
+
+                    <div className='create-box-number-grid'>
+                        <label>Total Cooking Time</label>
+                        <div>
+                            <div className='create-box-number-input-wrapper'>
+                                <input type='number' min='0' name='cooking-time' value={this.state.inputHours} onChange={(event) => {
+                                    this.setState({inputHours: event.target.value})
+                                }}/>
+                                <span> hours</span>
+                            </div>
+                            <div className='create-box-number-input-wrapper'>
+                                <input type='number' min='0' max='59' name='cooking-time' value={this.state.inputMinutes} onChange={(event) => {
+                                    this.setState({inputMinutes: event.target.value})
+                                }}/>
+                                <span> minutes</span>
+                            </div>
+                        </div>
+
+                        <label htmlFor='create-box-servings'>Servings</label>
+                        <div>
+                            <input type='number' min='0' id='create-box-servings' name='servings' value={this.state.inputServings} onChange={(event) => {
+                                this.setState({inputServings: event.target.value})
+                            }}/>
+                            <span> servings</span>
+                        </div>
                     </div>
 
                     <h3>Meal</h3>

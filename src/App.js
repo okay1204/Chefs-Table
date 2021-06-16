@@ -1,5 +1,6 @@
 import './App.css'
 import React from 'react'
+import { setRecipeImage } from './utils.js'
 
 import Header from './components/header.js'
 import Body from './components/body.js'
@@ -25,14 +26,10 @@ class App extends React.Component {
     setRecipes(recipes) {
 
         recipes.map(recipe => {
-            if (typeof recipe.image !== 'string') {
-                recipe.image = URL.createObjectURL(new Blob([recipe.image]))
-            }
+            setRecipeImage(recipe)
 
             return recipe
         })
-
-        console.log(recipes)
 
         this.setState({recipes})
     }

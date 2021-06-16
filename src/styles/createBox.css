@@ -202,6 +202,39 @@
     margin: auto;
 }
 
+.create-box-number-grid {
+    display: grid;
+    grid-template-columns: 200px 400px;
+    justify-content: center;
+    margin: 20px auto;
+    width: 80%;
+}
+
+.create-box-number-grid > * {
+    margin: 10px 0;
+}
+
+.create-box-number-input-wrapper {
+    display: inline-block;
+    margin: 0 10px;
+}
+
+.create-box-number-input-wrapper {
+    white-space: nowrap;
+}
+
+.create-box-number-grid input {
+    border: 2px var(--primary-bright) solid;
+    border-radius: 5px;
+    font-size: 17px;
+    display: inline-block;
+    width: 50px;
+}
+
+.create-box-number-grid span {
+    font-size: 17px;
+}
+
 .create-box-meal-wrapper {
     width: min(100%, 600px);
     display: flex;
