@@ -1,7 +1,8 @@
 import '../styles/createBox.css'
 import 'animate.css/animate.min.css'
 import React from 'react'
-import OutsideAnchor from './outSideAnchor'
+import OutsideAnchor from './outSideAnchor.js'
+import { capitalize } from '../utils.js'
 
 import CloseBlack from '../images/closeBlack.png'
 import LoadingWheel from '../images/loadingWheel.gif'
@@ -403,7 +404,7 @@ class CreateBox extends React.Component {
                                         
                                         this.setState({inputMeal: newMeal})
                                     }}/>
-                                    <label htmlFor={`create-box-${meal}`}>{meal[0].toUpperCase() + meal.substring(1).toLowerCase()}</label>
+                                    <label htmlFor={`create-box-${meal}`}>{capitalize(meal)}</label>
                                 </div>
                             ))
                         }

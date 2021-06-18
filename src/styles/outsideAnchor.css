@@ -1,0 +1,7 @@
+.outside-anchor {
+    cursor: pointer;
+}
+
+.outside-anchor:hover {
+    text-decoration: underline;
+}

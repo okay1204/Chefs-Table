@@ -30,16 +30,28 @@
     animation: zoomOut ease 250ms;
 }
 
+.recipe-box-edit {
+    position: fixed;
+    left: 60px;
+    width: 40px;
+    top: 60px;
+    cursor: pointer;
+}
+
+.recipe-box-edit:hover {
+    transform: scale(1.1);
+}
+
 .recipe-box-close {
     width: 40px;
     position: fixed;
     right: 60px;
     top: 60px;
+    cursor: pointer;
 }
 
 .recipe-box-close:hover {
-    transform: scale(1.1, 1.1);
-    cursor: pointer;
+    transform: scale(1.1);
 }
 
 .recipe-box-loading {
@@ -58,10 +70,85 @@
     display: flex;
     align-items: center;
     width: 100%;
-    justify-content: space-around;
+    justify-content: center;
 }
 
-.recipe-box-url p {
-    flex-basis: 85%;
+.recipe-box-url span,
+.recipe-box-url-anchor {
     text-align: left;
+    margin: 15px;
+    max-width: 75%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recipe-box-url-anchor {
+    color: var(--secondary-dark)
+}
+
+.recipe-header {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.recipe-box-image {
+    max-width: 25vw;
+    border-radius: 10px;
+    border: var(--primary-bright) 2px solid;
+    flex-basis: 60%;
+}
+
+.recipe-info-box {
+    margin: 20px;
+    border: 2px #9c9c9c solid;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.recipe-info-box > span {
+    display: block;
+    text-align: left;
+    font-size: 25px;
+}
+
+.recipe-box hr {
+    border: #696d67 solid 1px;
+    margin: 10px auto;
+    width: 50%;
+}
+
+.recipe-box-ingredients-list {
+    width: 60%;
+    margin: 20px auto;
+}
+
+.recipe-box-ingredients-list div {
+    display: flex;
+    margin: 20px 0;
+    align-items: center;
+}
+
+.recipe-box-ingredients-list input {
+    width: 25px;
+    flex-shrink: 0;
+}
+
+.recipe-box-ingredients-list label {
+    cursor: pointer;
+    text-align: left;
+}
+
+.recipe-box-instructions {
+    width: 90%;
+    margin: 50px auto;
+    text-align: left;
+    user-select: text;
+}
+
+.recipe-box-instructions-none {
+    display: block;
+    margin: 0 auto;
 }

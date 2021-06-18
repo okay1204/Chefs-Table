@@ -26,6 +26,7 @@
     background-color: var(--primary-background);
     border: var(--primary-bright) solid 2px;
     max-height: 200px;
+    z-index: 1;
 
     transition: all ease 100ms;
 }

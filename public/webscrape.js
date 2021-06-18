@@ -86,7 +86,7 @@ class WebScrape {
         const protein = this.proteinFromName(name)
         const ingredients = data.recipeIngredient
 
-        const instructions = data.recipeInstructions.map((step) => step.text).join('')
+        const instructions = data.recipeInstructions.map((step) => step.text).join('\n')
 
         const timeString = data.totalTime.split('T')[1]
         const hours = parseInt(timeString.split('H')[0], 10)
@@ -131,7 +131,7 @@ class WebScrape {
         }
 
         let instructions = root.querySelectorAll('.recipe-steps li')
-        instructions = instructions.map(step => step.innerText).join('\n')
+        instructions = instructions.map(step => step.innerText).join('\n\n')
 
         const totalTime = root.querySelector('.recipe-time + span').innerText
 

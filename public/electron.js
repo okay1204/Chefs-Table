@@ -171,6 +171,8 @@ ipcMain.handle('recipes:readPage', async (event, page) => {
 
         if (recipe.image === 'local') {
             recipe.image = await fs.readFile(path.join(IMAGES_PATH, String(recipe.id)))
+        } else if (!recipe.image) {
+            recipe.image = await fs.readFile(path.join(__dirname, 'no photo.png'))
         }
     }
 
@@ -182,6 +184,8 @@ ipcMain.handle('recipes:readRecipe', async (event, recipeId) => {
 
     if (recipe.image === 'local') {
         recipe.image = await fs.readFile(path.join(IMAGES_PATH, String(recipeId)))
+    } else if (!recipe.image) {
+        recipe.image = await fs.readFile(path.join(__dirname, 'no photo.png')) 
     }
 
     const ingredients = db.prepare('SELECT ingredient FROM ingredients WHERE recipeId = ?').all(recipeId)
@@ -210,16 +214,18 @@ ipcMain.handle('recipes:add', async (event, newRecipe) => {
     const { lastInsertRowid } = db.prepare(`INSERT INTO recipes (${columns}) VALUES (${values})`).run(...Object.values(newRecipeTemplate))
     newRecipeTemplate.id = lastInsertRowid
     
-    // after getting the id, update with the image
-    let image;
-    if (newRecipe.imageType === 'url') {
-        image = newRecipe.image
-    } else {
-        image = 'local'
-        fs.writeFile(path.join(IMAGES_PATH, String(lastInsertRowid)), newRecipe.image)
+    if (newRecipe.imageType) {
+        // after getting the id, update with the image
+        let image;
+        if (newRecipe.imageType === 'url') {
+            image = newRecipe.image
+        } else {
+            image = 'local'
+            fs.writeFile(path.join(IMAGES_PATH, String(lastInsertRowid)), newRecipe.image)
+        }
+        
+        db.prepare('UPDATE recipes SET image = ? WHERE id = ?').run(image, lastInsertRowid)
     }
-    
-    db.prepare('UPDATE recipes SET image = ? WHERE id = ?').run(image, lastInsertRowid)
 
     // add all ingredients
     const addIngredient = db.prepare('INSERT INTO ingredients (recipeId, ingredient) VALUES (?, ?)')
