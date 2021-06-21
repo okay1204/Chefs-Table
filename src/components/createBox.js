@@ -8,6 +8,7 @@ import CloseBlack from '../images/closeBlack.png'
 import LoadingWheel from '../images/loadingWheel.gif'
 import DeleteIcon from '../images/delete.png'
 import CloseRed from '../images/closeRed.png'
+import BackBlack from '../images/backBlack.png'
 
 class CreateBox extends React.Component {
 
@@ -22,6 +23,7 @@ class CreateBox extends React.Component {
             openAnimating: true,
             closeAnimating: false,
             refreshRecipes: false,
+            edit: null,
             urlError: null,
             url: '',
             urlLoading: false,
@@ -38,25 +40,71 @@ class CreateBox extends React.Component {
             inputMeal: mealObj,
             inputInstructions: '',
             inputIngredients: {},
-            ingredientIdCount: 0
+            ingredientIdCount: 0,
+            submitLoading: false,
+            deletePrompt: false
         }
         
         this.handleUrlInput = this.handleUrlInput.bind(this)
         this.addIngredient = this.addIngredient.bind(this)
         this.getImage = this.getImage.bind(this)   
-        this.addRecipe = this.addRecipe.bind(this)  
+        this.submitRecipe = this.submitRecipe.bind(this)
+
+        this.openRecipeBox = () => {
+            this.props.unmount()
+            this.props.openRecipeBox(this.state.edit)
+        }
+    }
+
+
+    // set body overflow to prevent scrolling outside of the component
+    componentWillUnmount() {
+        document.body.style.overflow = 'unset'
     }
     
     componentDidMount() {
+        document.body.style.overflow = 'hidden'
+
         const initialValue = this.props.initialValue
 
         if (initialValue) {
             this.setState({url: initialValue.url})
+
             if (initialValue.sendRequest) {
                 this.handleUrlInput(initialValue.url)
+            } else if (initialValue.edit) {
+
+                const mealObj = {}
+                this.meals.forEach((meal) => mealObj[meal] = initialValue.meals.includes(meal))
+
+
+                const newIngredients = {}
+                let ingredientIdCount = this.state.ingredientIdCount
+                
+                initialValue.ingredients.forEach(ingredient => {
+                    newIngredients[ingredientIdCount++] = ingredient
+                })
+
+                this.setState({
+                    inputIngredients: newIngredients,
+                    ingredientIdCount
+                })
+
+                this.setState({
+                    edit: initialValue.edit,
+                    image: initialValue.image.type !== 'none' ? initialValue.image : {},
+                    inputImage: initialValue.image.type === 'url' ? initialValue.image.data : '',
+                    inputInstructions: initialValue.instructions,
+                    inputName: initialValue.name,
+                    inputProtein: initialValue.protein ? initialValue.protein : '',
+                    inputServings: initialValue.servings,
+                    inputHours: Math.floor(initialValue.totalMinutes / 60),
+                    inputMinutes: initialValue.totalMinutes % 60,
+                    inputMeal: mealObj
+                })
+
             }
         }
-
     }
     
     handleUrlInput(url) {
@@ -163,7 +211,13 @@ class CreateBox extends React.Component {
         })
     }
 
-    addRecipe() {
+    submitRecipe() {
+
+
+        if (this.state.submitLoading) return
+
+        this.setState({submitLoading: true})
+
         const url = this.state.url
 
         const imageType = this.state.image.type
@@ -188,23 +242,43 @@ class CreateBox extends React.Component {
         
         const servings = this.state.inputServings
 
-        this.props.ipcRenderer.invoke('recipes:add', {
-            url,
-            imageType,
-            image,
-            name,
-            protein,
-            meals,
-            instructions,
-            ingredients,
-            totalMinutes,
-            servings
-        })
+        // if adding a recipe
+        if (!this.state.edit) {
+            this.props.ipcRenderer.invoke('recipes:add', {
+                url,
+                imageType,
+                image,
+                name,
+                protein,
+                meals,
+                instructions,
+                ingredients,
+                totalMinutes,
+                servings
+            })
+    
+            this.setState({
+                closeAnimating: true,
+                refreshRecipes: true
+            })
+        } else {
 
-        this.setState({
-            closeAnimating: true,
-            refreshRecipes: true
-        })
+            this.props.ipcRenderer.invoke('recipes:edit', {
+                id: this.state.edit,
+                url,
+                imageType,
+                image,
+                name,
+                protein,
+                meals,
+                instructions,
+                ingredients,
+                totalMinutes,
+                servings
+            }).then(this.openRecipeBox)
+
+            this.props.refreshRecipes()
+        }
     }
 
     render() {
@@ -253,8 +327,30 @@ class CreateBox extends React.Component {
                     }
                 }}>
 
+                    {!this.state.openAnimating && this.state.edit && <img className='create-box-back' src={BackBlack} alt='back' onClick={this.openRecipeBox}/>}
                     {!this.state.openAnimating && <img className='create-box-close' src={CloseBlack} alt='close' onClick={() => this.setState({closeAnimating: true})}/>}
-                    <h1>Add Recipe</h1>
+                    {this.state.edit && <span className='create-box-id'>ID: {this.state.edit}</span>}
+                    <h1 style={this.state.edit ? {marginBottom: '0px'} : {}}>{this.state.edit ? 'Edit' : 'Add'} Recipe</h1>
+                    {this.state.edit && <button className='create-box-delete-recipe' onClick={() => this.setState({deletePrompt: true})}>Delete Recipe</button>}
+
+                    {
+                        this.state.deletePrompt &&
+                        <div className='create-box-delete-prompt-background'>
+                            <div className='create-box-delete-prompt'>
+                                <h3>Delete {this.state.inputName ? this.state.inputName : 'recipe'}?</h3>
+                                <button onClick={() => this.setState({deletePrompt: false})}>Cancel</button> <button className='create-box-delete-button' onClick={() => {
+                                    if (this.state.submitLoading) return
+                                    this.setState({submitLoading: true})
+
+                                    this.props.ipcRenderer.invoke('recipes:remove', this.state.edit)
+                                    .then(() => {
+                                        this.props.refreshRecipes()
+                                        this.props.unmount()
+                                    })
+                                }}>Delete</button>
+                            </div>
+                        </div>
+                    }
 
                     <div className='create-box-url-input-wrapper'>
                         <label htmlFor='url'>URL</label>
@@ -398,7 +494,7 @@ class CreateBox extends React.Component {
                             this.meals
                             .map((meal) => (
                                 <div className='create-box-checkbox-wrapper' key={meal}>
-                                    <input type='checkbox' id={`create-box-${meal}`} name={meal} value={this.state.inputMeal[meal]} onChange={(event) => {
+                                    <input type='checkbox' id={`create-box-${meal}`} name={meal} checked={this.state.inputMeal[meal]} onChange={(event) => {
                                         const newMeal = this.state.inputMeal
                                         newMeal[meal] = event.target.checked
                                         
@@ -420,7 +516,7 @@ class CreateBox extends React.Component {
                     <button className='create-box-add-ingredient' onClick={() => this.addIngredient('')}>+</button>
                     
                     <br />
-                    <button className='create-box-submit-recipe-button' onClick={this.addRecipe}>Add Recipe</button>
+                    <button className='create-box-submit-recipe-button' onClick={this.submitRecipe}>{this.state.edit ? 'Edit' : 'Add'} Recipe</button>
 
                 </div>
             </div>

@@ -1,6 +1,6 @@
 .create-box-background {
     background-color: rgba(0, 0, 0, 0.3);
-    position: absolute;
+    position: fixed;
     z-index: 9;
     width: 100vw;
     height: 100vh;
@@ -16,7 +16,7 @@
     transition: all ease-in 200ms;
     z-index: 10;
     animation: zoomIn ease 250ms;
-    position: absolute;
+    position: fixed;
     left: 50px;
     right: 50px;
     top: 50px;
@@ -42,11 +42,75 @@
     text-align: left;
 }
 
+.create-box-back {
+    width: 40px;
+    position: fixed;
+    left: 60px;
+    top: 60px;
+}
+
+.create-box-back:hover {
+    transform: scale(1.1, 1.1);
+    cursor: pointer;
+}
+
 .create-box-close {
     width: 40px;
     position: fixed;
     right: 60px;
     top: 60px;
+}
+
+.create-box-id {
+    margin-top: 10px;
+    display: block;
+}
+
+.create-box .create-box-delete-recipe {
+    background-color: transparent;
+    color: red;
+    margin: 0;
+    transition: all ease 100ms;
+    margin-bottom: 10px;
+}
+
+.create-box-delete-prompt-background {
+    background-color: rgba(0, 0, 0, 0.3);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.create-box-delete-prompt {
+    position: fixed;
+    top: 35%;
+    left: 0;
+    right: 0;
+    background-color: var(--primary-background);
+    z-index: 1;
+    border: 2px var(--primary-bright) solid;
+    padding: 20px;
+    width: fit-content;
+    height: fit-content;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+
+.create-box .create-box-delete-button {
+    background-color: #ff5252;
+    color: white;
+}
+
+.create-box .create-box-delete-prompt button {
+    margin: 0 30px;
+    padding: 10px 20px;
+}
+
+.create-box .create-box-delete-recipe:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
 }
 
 .create-box-close:hover {

@@ -17,13 +17,23 @@ class RecipeBox extends React.Component {
             openAnimating: true,
             closeAnimating: false,
             recipe: null,
+            rawImage: null,
             loading: true,
         }
     }
+
+    // set body overflow to prevent scrolling outside of the component
+    componentWillUnmount() {
+        document.body.style.overflow = 'unset'
+    }
     
     componentDidMount() {
+        document.body.style.overflow = 'hidden'
         this.props.ipcRenderer.invoke('recipes:readRecipe', this.props.recipeId)
-        .then((recipe) => this.setState({ recipe: setRecipeImage(recipe), loading: false }))
+        .then((recipe) => {
+            const rawImage = recipe.image
+            this.setState({ recipe: setRecipeImage(recipe), rawImage, loading: false })
+        })
     }
     
     render() {
@@ -63,7 +73,6 @@ class RecipeBox extends React.Component {
                     }
                 }}>
 
-                {!this.state.openAnimating && <img className='recipe-box-edit' src={EditBlack} alt='edit'/>}
                 {!this.state.openAnimating && <img className='recipe-box-close' src={CloseBlack} alt='close' onClick={() => this.setState({closeAnimating: true})}/>}
                 
                     {
@@ -71,6 +80,34 @@ class RecipeBox extends React.Component {
                         ? <div className='recipe-box-loading'><img src={LoadingWheel} alt='loading' /></div>
                         : (
                             <div className='recipe-box-content-wrapper'>
+                                
+                                {!this.state.openAnimating && <img className='recipe-box-edit' src={EditBlack} alt='edit' onClick={() => {
+                                    this.props.unmount()
+
+                                    this.props.openEditBox({
+                                        edit: this.props.recipeId,
+                                        url: this.state.recipe.url,
+                                        name: this.state.recipe.name,
+                                        protein: this.state.recipe.protein,
+                                        totalMinutes: this.state.recipe.totalMinutes,
+                                        servings: this.state.recipe.servings,
+                                        ingredients: this.state.recipe.ingredients,
+                                        meals: this.state.recipe.meals,
+                                        instructions: this.state.recipe.instructions,
+                                        // if image is using link, use link, otherwise pass in byte array
+                                        image: ['binary', 'none'].includes(this.state.recipe.imageType) ?
+                                        {
+                                            type: this.state.recipe.imageType,
+                                            data: this.state.rawImage
+                                        }
+                                        :
+                                        {
+                                            type: 'url',
+                                            data: this.state.recipe.image
+                                        }
+                                    })
+                                }} />}
+
                                 <h1>{this.state.recipe.name}</h1>
 
                                 {/* eslint-disable-next-line */}

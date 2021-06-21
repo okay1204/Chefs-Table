@@ -1,6 +1,6 @@
 .recipe-box-background {
     background-color: rgba(0, 0, 0, 0.3);
-    position: absolute;
+    position: fixed;
     z-index: 9;
     width: 100vw;
     height: 100vh;
@@ -16,7 +16,7 @@
     transition: all ease-in 200ms;
     z-index: 10;
     animation: zoomIn ease 250ms;
-    position: absolute;
+    position: fixed;
     left: 50px;
     right: 50px;
     top: 50px;

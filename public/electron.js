@@ -182,11 +182,16 @@ ipcMain.handle('recipes:readPage', async (event, page) => {
 ipcMain.handle('recipes:readRecipe', async (event, recipeId) => {
     const recipe = db.prepare('SELECT * FROM recipes WHERE id = ?').get(recipeId)
 
+    let imageType = 'url'
     if (recipe.image === 'local') {
         recipe.image = await fs.readFile(path.join(IMAGES_PATH, String(recipeId)))
+        imageType = 'binary'
     } else if (!recipe.image) {
-        recipe.image = await fs.readFile(path.join(__dirname, 'no photo.png')) 
+        recipe.image = await fs.readFile(path.join(__dirname, 'no photo.png'))
+        imageType = 'none'
     }
+
+    recipe.imageType = imageType
 
     const ingredients = db.prepare('SELECT ingredient FROM ingredients WHERE recipeId = ?').all(recipeId)
     recipe.ingredients = ingredients.map((ingredient) => Object.values(ingredient)[0])
@@ -238,6 +243,75 @@ ipcMain.handle('recipes:add', async (event, newRecipe) => {
     return newRecipeTemplate
 })
 
+ipcMain.handle('recipes:edit', async (event, newRecipe) => {
+
+    const newRecipeTemplate = {
+        url: newRecipe.url,
+        name: newRecipe.name,
+        protein: newRecipe.protein,
+        instructions: newRecipe.instructions,
+        totalMinutes: newRecipe.totalMinutes,
+        servings: newRecipe.servings
+    }
+    
+    const updates = Object.keys(newRecipeTemplate).map(fieldName => fieldName + ' = ?').join(', ')
+    
+    db.prepare(`UPDATE recipes SET ${updates} WHERE id = ?`).run(...Object.values(newRecipeTemplate).concat(newRecipe.id))
+    
+    let oldImage = db.prepare('SELECT image FROM recipes WHERE id = ?').get(newRecipe.id).image
+    if (oldImage === 'local') {
+        await fs.unlink(path.join(IMAGES_PATH, String(newRecipe.id)))
+    }
+    
+    if (newRecipe.imageType) {
+        // after getting the id, update with the image
+        let image;
+        if (newRecipe.imageType === 'url') {
+            image = newRecipe.image
+        } else {
+            image = 'local'
+            fs.writeFile(path.join(IMAGES_PATH, String(newRecipe.id)), newRecipe.image)
+        }
+        
+        db.prepare('UPDATE recipes SET image = ? WHERE id = ?').run(image, newRecipe.id)
+    } else if (!newRecipe.imageType) {
+        // delete image
+        db.prepare('UPDATe recipes SET image = NULL WHERE id = ?').run(newRecipe.id)
+    }
+
+    // edit all ingredients
+    db.prepare('DELETE FROM ingredients WHERE recipeId = ?').run(newRecipe.id)
+    const addIngredient = db.prepare('INSERT INTO ingredients (recipeId, ingredient) VALUES (?, ?)')
+    newRecipe.ingredients.forEach(ingredient => addIngredient.run(newRecipe.id, ingredient))
+
+    // add all meals
+    db.prepare('DELETE FROM meals WHERE recipeId = ?').run(newRecipe.id)
+    const addMeal = db.prepare('INSERT INTO meals (recipeId, meal) VALUES (?, ?)')
+    newRecipe.meals.forEach(meal => addMeal.run(lastInsertRowid, meal))
+    
+    return newRecipeTemplate
+})
+
+ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
+    const image = db.prepare('SELECT image FROM recipes WHERE id = ?').get(recipeIdToRemove).image
+
+    // delete saved image if exists
+    if (image === 'local') {
+        await fs.unlink(path.join(IMAGES_PATH, String(recipeIdToRemove)))
+    }
+    
+    db.prepare('DELETE FROM recipes WHERE id = ?').run(recipeIdToRemove)
+    db.prepare('DELETE FROM ingredients WHERE recipeId = ?').run(recipeIdToRemove)
+    db.prepare('DELETE FROM meals WHERE recipeId = ?').run(recipeIdToRemove)
+})
+
+ipcMain.handle('recipes:clear', async () => {
+    db.prepare('DELETE FROM recipes').run()
+    db.prepare('DELETE FROM ingredients').run()
+    db.prepare('DELETE FROM meals').run()
+    return []
+})
+
 ipcMain.handle('recipes:webscrape', async (event, url) => {
     try {
         return {
@@ -252,17 +326,4 @@ ipcMain.handle('recipes:webscrape', async (event, url) => {
             }
         }
     }
-})
-
-ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
-    const removedRecipe = db.prepare('SELECT * FROM recipes WHERE id = ?').get(recipeIdToRemove)
-    
-    db.prepare('DELETE FROM recipes WHERE id = ?').run(recipeIdToRemove)
-    
-    return removedRecipe
-})
-
-ipcMain.handle('recipes:clear', async () => {
-    db.prepare('DELETE FROM recipes').run()
-    return []
 })

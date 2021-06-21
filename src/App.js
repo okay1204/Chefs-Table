@@ -35,17 +35,13 @@ class App extends React.Component {
     }
 
     refreshRecipes() {
-        this.setState({recipePage: 1})
-
-        this.ipcRenderer.invoke('recipes:readPage', 1).then((recipes) => {
+        this.ipcRenderer.invoke('recipes:readPage', this.state.recipePage).then((recipes) => {
             this.setRecipes(recipes)
         })
     }
 
     componentDidMount() {
-        this.ipcRenderer.invoke('recipes:readPage', this.state.recipePage).then((recipes) => {
-            this.setRecipes(recipes)
-        })
+        this.refreshRecipes()
     }
 
     render() {

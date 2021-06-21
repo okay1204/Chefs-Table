@@ -1,12 +1,14 @@
 import '../styles/body.css'
 import React from 'react'
 import RecipeBox from './recipeBox.js'
+import CreateBox from './createBox.js'
 
 import AddCircleBlack from '../images/addCircleBlack.png'
 
-function Body({recipes, recipePage, ipcRenderer}) {
+function Body({recipes, recipePage, ipcRenderer, refreshRecipes}) {
 
     const [recipeBoxId, setRecipeBoxId] = React.useState(null)
+    const [editBox, setEditBox] = React.useState(null)
 
     return (
         <div className='MainBody body'>
@@ -32,7 +34,11 @@ function Body({recipes, recipePage, ipcRenderer}) {
             </div>
 
             {
-                recipeBoxId && <RecipeBox recipeId={recipeBoxId} ipcRenderer={ipcRenderer} unmount={() => setRecipeBoxId(null)}/>
+                recipeBoxId && <RecipeBox recipeId={recipeBoxId} ipcRenderer={ipcRenderer} unmount={() => setRecipeBoxId(null)} openEditBox={(initialValue) => setEditBox(initialValue)}/>
+            }
+
+            {
+                editBox && <CreateBox ipcRenderer={ipcRenderer} initialValue={editBox} unmount={() => setEditBox(null)} openRecipeBox={(recipeBoxId) => setRecipeBoxId(recipeBoxId)} refreshRecipes={refreshRecipes}/>
             }
             
         </div>
