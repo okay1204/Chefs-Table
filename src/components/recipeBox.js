@@ -18,7 +18,7 @@ class RecipeBox extends React.Component {
             closeAnimating: false,
             recipe: null,
             rawImage: null,
-            loading: true,
+            loading: true
         }
     }
 
@@ -38,10 +38,27 @@ class RecipeBox extends React.Component {
     
     render() {
 
+        let ingredients
         // replace all \n in text to line break tags
         let recipeInstructions
         
         if (!this.state.loading) {
+
+            let ingredientIdCount = 0
+            ingredients = this.state.recipe.ingredients.map(step => {
+                const ingredientId = ingredientIdCount++
+                const checkboxClassname = 'recipe-box-ingredient-checkbox-' + ingredientId
+                return (
+                    <div key={ingredientId}>
+                        <input type='checkbox' id={checkboxClassname}/>
+                        <label htmlFor={checkboxClassname}>{step}</label>
+                    </div>
+                )
+            })
+
+
+
+
             let key = 0
             let splitInstructions = this.state.recipe.instructions.split('\n')
             recipeInstructions = []
@@ -55,6 +72,7 @@ class RecipeBox extends React.Component {
         }
 
         return (
+
             <div className='recipe-box-wrapper'>
                 {
                     !this.state.closeAnimating && 
@@ -120,6 +138,15 @@ class RecipeBox extends React.Component {
                                     </div>
                                 </div>
 
+                                <h3>Meals</h3>
+                                <div className='recipe-box-meals-wrapper'>
+                                    {this.state.recipe.meals.length > 0 ? 
+                                    this.state.recipe.meals.map(meal => (
+                                        <h5 key={meal}>{capitalize(meal)}</h5>
+                                    ))
+                                    : <h5>None</h5>}
+                                </div>
+
                                 <div className='recipe-box-url'>
                                     <h3>URL</h3>
                                     {this.state.recipe.url ?
@@ -133,16 +160,7 @@ class RecipeBox extends React.Component {
                                 <h3>Ingredients</h3>
                                 <div className='recipe-box-ingredients-list'>
                                     {this.state.recipe.ingredients.length > 0 ?
-                                        this.state.recipe.ingredients.map(step => {
-                                            const ingredientId = this.state.recipe.ingredients.indexOf(step)
-                                            const checkboxClassname = 'recipe-box-ingredient-checkbox-' + ingredientId
-                                            return (
-                                                <div key={ingredientId}>
-                                                    <input type='checkbox' id={checkboxClassname}/>
-                                                    <label htmlFor={checkboxClassname}>{step}</label>
-                                                </div>
-                                            )
-                                        })
+                                        ingredients
                                         :
                                         'None'
                                     }

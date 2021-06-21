@@ -82,7 +82,7 @@ class WebScrape {
         const root = HTMLParser.parse(response.data)
         const data = JSON.parse(root.querySelector('script').rawText)[1]
 
-        const name = data.name
+        const name = he.decode(data.name)
         const protein = this.proteinFromName(name)
         const ingredients = data.recipeIngredient
 

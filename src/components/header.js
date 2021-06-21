@@ -51,7 +51,8 @@ class Header extends React.Component {
                                 if (event.key === 'Enter') {
                                     this.setState({
                                         createBox: {sendRequest: true, url: this.state.miniCreateBoxUrl},
-                                        miniCreateBox: false
+                                        miniCreateBox: false,
+                                        miniCreateBoxUrl: ''
                                     })
                                 }
                             }}

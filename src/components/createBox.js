@@ -11,10 +11,11 @@ import CloseRed from '../images/closeRed.png'
 import BackBlack from '../images/backBlack.png'
 
 class CreateBox extends React.Component {
-
+    
     constructor() {
         super()
         
+        this.lastIngredientRef = React.createRef()
         this.meals = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'other']
         const mealObj = {}
         this.meals.forEach((meal) => mealObj[meal] = false)
@@ -42,13 +43,15 @@ class CreateBox extends React.Component {
             inputIngredients: {},
             ingredientIdCount: 0,
             submitLoading: false,
-            deletePrompt: false
+            deletePrompt: false,
+            focusLastIngredient: false
         }
         
         this.handleUrlInput = this.handleUrlInput.bind(this)
         this.addIngredient = this.addIngredient.bind(this)
         this.getImage = this.getImage.bind(this)   
         this.submitRecipe = this.submitRecipe.bind(this)
+        this.componentDidUpdate = this.componentDidUpdate.bind(this)
 
         this.openRecipeBox = () => {
             this.props.unmount()
@@ -106,6 +109,17 @@ class CreateBox extends React.Component {
             }
         }
     }
+
+    componentDidUpdate() {
+
+        // for focusing to last ingredient if enter was pressed
+        if (this.state.focusLastIngredient) {
+            let lastInput = this.lastIngredientRef
+            lastInput.current.focus()
+
+            this.setState({focusLastIngredient: false})
+        }
+    }
     
     handleUrlInput(url) {
         if (!url) return
@@ -152,7 +166,8 @@ class CreateBox extends React.Component {
                     urlError = 'Failed request, is the URL correct?'
                     break
                 default:
-                    urlError = 'Invalid recipe URL' 
+                    urlError = 'Invalid recipe URL'
+                    console.log('Recipe webscrape error: ' + error.message) 
                     break
             }
 
@@ -285,7 +300,14 @@ class CreateBox extends React.Component {
 
         const ingredientsHTML = []
 
+        let i = 1
         for (const key of Object.keys(this.state.inputIngredients)) {
+            let inputRef = false
+            if (i === Object.keys(this.state.inputIngredients).length) {
+                console.log(i, Object.keys(this.state.inputIngredients).length)
+                inputRef = true
+            }
+
             ingredientsHTML.push([
                 <div key={'delete ' + key} className='create-box-ingredients-delete'><img src={DeleteIcon} alt='delete' onClick={() => {
                     const newIngredients = this.state.inputIngredients
@@ -295,7 +317,7 @@ class CreateBox extends React.Component {
                         inputIngredients: newIngredients
                     })
                 }}/></div>,
-                <input key={'input ' + key} type='text' placeholder='Recipe ingredient...' value={this.state.inputIngredients[key]} onChange={(event) => {
+                <input key={'input ' + key} ref={inputRef ? this.lastIngredientRef : null} type='text' placeholder='Recipe ingredient...' value={this.state.inputIngredients[key]} onChange={event => {
 
                     const newIngredients = JSON.parse(JSON.stringify(this.state.inputIngredients))
                     newIngredients[key] = event.target.value
@@ -303,10 +325,16 @@ class CreateBox extends React.Component {
                     this.setState({
                         inputIngredients: newIngredients
                     })
+                }} onKeyDown={event => {
+                    if (event.key === 'Enter') {
+                        this.setState({focusLastIngredient: true})
+                        this.addIngredient('')
+                    }
                 }}/>
             ])
-        }
 
+            i++
+        }
 
         return (
             <div className='create-box-wrapper'>
@@ -513,7 +541,11 @@ class CreateBox extends React.Component {
                     <ul className='create-box-ingredients-list'>
                         {ingredientsHTML}
                     </ul>
-                    <button className='create-box-add-ingredient' onClick={() => this.addIngredient('')}>+</button>
+                    
+                    <button className='create-box-add-ingredient' onClick={() => {
+                        this.addIngredient('')
+                        this.setState({focusLastIngredient: true})
+                    }}>+</button>
                     
                     <br />
                     <button className='create-box-submit-recipe-button' onClick={this.submitRecipe}>{this.state.edit ? 'Edit' : 'Add'} Recipe</button>

@@ -108,6 +108,18 @@
     border-radius: 10px;
 }
 
+.recipe-box-meals-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+}
+
+.recipe-box-meals-wrapper * {
+    font-size: 20px;
+    font-weight: normal;
+    margin: 0 10px;
+}
+
 .recipe-info-box > span {
     display: block;
     text-align: left;
