@@ -1,8 +1,23 @@
+.body-page-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.body-page-wrapper button {
+    transition: all ease 100ms;
+}
+
+.body-page-wrapper button:hover {
+    transform: scale(1.2);
+}
+
 .recipe-preview-list {
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap;
-    width: fit-content;
+    width: 100%;
+    justify-content: center;
 }
 
 .recipe-preview {

@@ -14,7 +14,8 @@ class App extends React.Component {
         super()
         this.state = {
             recipes: [],
-            recipePage: 1
+            recipePage: 1,
+            totalPages: 1
         }
 
         this.ipcRenderer = ipcRenderer
@@ -35,8 +36,12 @@ class App extends React.Component {
     }
 
     refreshRecipes() {
-        this.ipcRenderer.invoke('recipes:readPage', this.state.recipePage).then((recipes) => {
+        this.ipcRenderer.invoke('recipes:readPage', this.state.recipePage).then(recipes => {
             this.setRecipes(recipes)
+        })
+
+        this.ipcRenderer.invoke('recipes:getTotalPages', this.state.recipePage).then(totalPages => {
+            this.setState({totalPages})
         })
     }
 
@@ -56,8 +61,10 @@ class App extends React.Component {
                 <Body
                     recipes={this.state.recipes}
                     recipePage={this.state.recipePage}
+                    setRecipePage={(newPage) => this.setState({recipePage: newPage}, this.refreshRecipes)}
                     refreshRecipes={this.refreshRecipes}
                     ipcRenderer={this.ipcRenderer}
+                    totalPages={this.state.totalPages}
                 />
     
             </div>

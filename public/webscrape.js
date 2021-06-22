@@ -3,7 +3,7 @@ const HTMLParser = require('node-html-parser')
 const Url = require('url-parse')
 const he = require('he')
 
-const ALL_PROTEINS = ['chicken', 'beef', 'fish', 'salmon', 'shrimp']
+const ALL_PROTEINS = ['chicken', 'beef', 'fish', 'salmon', 'shrimp', 'lamb', 'pork']
 
 class DomainUnsupportedError extends Error {
     constructor(message) {
@@ -83,10 +83,10 @@ class WebScrape {
         const data = JSON.parse(root.querySelector('script').rawText)[1]
 
         const name = he.decode(data.name)
-        const protein = this.proteinFromName(name)
+        const protein = he.decode(this.proteinFromName(name))
         const ingredients = data.recipeIngredient
 
-        const instructions = data.recipeInstructions.map((step) => step.text).join('\n')
+        const instructions = data.recipeInstructions.map((step) => he.decode(step.text)).join('\n')
 
         const timeString = data.totalTime.split('T')[1]
         const hours = parseInt(timeString.split('H')[0], 10)
@@ -113,16 +113,16 @@ class WebScrape {
         const response = await this.getResponse(url)
         const root = HTMLParser.parse(response.data)
 
-        const name = root.querySelector('.recipe-title').rawText.trim()
+        const name = he.decode(root.querySelector('.recipe-title').rawText.trim())
         const imageUrl = root.querySelector('.recipe-intro .media-container picture img').attributes.src
-        const protein = this.proteinFromName(name)
+        const protein = he.decode(this.proteinFromName(name))
 
         
         let ingredientQuantities = root.querySelectorAll('.recipe-ingredients li .quantity')
         let ingredientNames = root.querySelectorAll('.recipe-ingredients li .ingredient-name')
 
         ingredientQuantities = ingredientQuantities.map((element) => he.decode(element.innerHTML).trim())
-        ingredientNames = ingredientNames.map((element) => element.innerHTML.trim())
+        ingredientNames = ingredientNames.map((element) => he.decode(element.innerHTML).trim())
 
         const ingredients = []
 
@@ -131,7 +131,7 @@ class WebScrape {
         }
 
         let instructions = root.querySelectorAll('.recipe-steps li')
-        instructions = instructions.map(step => step.innerText).join('\n\n')
+        instructions = instructions.map(step => he.decode(step.innerText)).join('\n\n')
 
         const totalTime = root.querySelector('.recipe-time + span').innerText
 

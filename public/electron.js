@@ -166,7 +166,7 @@ ipcMain.handle('main:readImage', async () => {
 const RECIPES_PER_PAGE = 20
 
 ipcMain.handle('recipes:readPage', async (event, page) => {
-    let recipes = db.prepare('SELECT id, image, name FROM recipes ORDER BY id DESC LIMIT 25 OFFSET ?').all((page - 1) * RECIPES_PER_PAGE)
+    let recipes = db.prepare(`SELECT id, image, name FROM recipes ORDER BY id DESC LIMIT ? OFFSET ?`).all(RECIPES_PER_PAGE, (page - 1) * RECIPES_PER_PAGE)
 
     for (i = 0; i < recipes.length; i++) {
         recipe = recipes[i]
@@ -295,7 +295,7 @@ ipcMain.handle('recipes:edit', async (event, newRecipe) => {
     // add all meals
     db.prepare('DELETE FROM meals WHERE recipeId = ?').run(newRecipe.id)
     const addMeal = db.prepare('INSERT INTO meals (recipeId, meal) VALUES (?, ?)')
-    newRecipe.meals.forEach(meal => addMeal.run(lastInsertRowid, meal))
+    newRecipe.meals.forEach(meal => addMeal.run(newRecipe.id, meal))
     
     return newRecipeTemplate
 })

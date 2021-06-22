@@ -103,6 +103,11 @@ input[type="checkbox"]:checked::after {
     font-size: 30px;
 }
 
+.disabled-input {
+    filter: grayscale(100%);
+    pointer-events: none;
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }
