@@ -1,5 +1,4 @@
 import '../styles/createBox.css'
-import 'animate.css/animate.min.css'
 import React from 'react'
 import OutsideAnchor from './outSideAnchor.js'
 import { capitalize } from '../utils.js'

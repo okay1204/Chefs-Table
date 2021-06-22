@@ -121,6 +121,135 @@ input[type="checkbox"]:checked::after {
     background: #64d4a0;
 }
 
+/* Specific styling */
+
+.add-recipe-button {
+    transition: all ease-out 100ms;
+}
+
+.add-recipe-button:hover {
+    opacity: 0.7;
+    transform: scale(1.1, 1.1);
+}
+
+.add-recipe-button-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px;
+}
+
+.inline-add-circle-icon {
+    width: 30px;
+}
+
+.mini-create-box {
+    position: absolute;
+    right: 10px;
+    padding: 10px;
+    line-height: 0;
+    border-radius: 5px;
+    background-color: var(--primary-background);
+    border: var(--primary-bright) solid 2px;
+    max-height: 200px;
+    z-index: 1;
+
+    transition: all ease 100ms;
+}
+
+.mini-create-box.hidden {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    border: none;
+}
+
+.mini-create-box-title {
+    font-size: 20px;
+}
+
+.mini-create-box-url-input {
+    margin: 10px 0;
+    font-size: 15px;
+}
+
+.mini-create-box-expand {
+    display: block;
+    position: absolute;
+    padding: 0;
+    top: -20px;
+    left: -15px;
+    transform: rotate(45deg);
+    transition: all ease 100ms;
+}
+
+.mini-create-box-expand:hover {
+    transform: scale(1.4, 1.4) rotate(45deg);
+}
+
+.mini-create-box-expand-wrapper {
+    display: block;
+    position: relative;
+    margin: 10px 0;
+}
+
+.body-page-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.body-page-wrapper button {
+    transition: all ease 100ms;
+}
+
+.body-page-wrapper button:hover {
+    transform: scale(1.2);
+}
+
+.recipe-preview-list {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+}
+
+.recipe-preview {
+    background-color: var(--primary-background);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 15px;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all ease 150ms;
+    border: 2px var(--primary-bright) solid;
+    animation: fadeIn ease 500ms;
+}
+
+.recipe-preview:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+
+.recipe-preview-image-wrapper img {
+    height: 250px;
+    width: 250px;
+    object-fit: cover;
+}
+
+.recipe-preview h2 {
+    margin: 0 auto;
+    display: block;
+    width: 250px;
+    padding: 10px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 17px;
+}
+
 /* Fonts */
 
 @font-face {

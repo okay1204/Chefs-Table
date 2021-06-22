@@ -96,6 +96,7 @@
     height: fit-content;
     margin: 0 auto;
     border-radius: 10px;
+    animation: zoomIn 200ms ease;
 }
 
 .create-box .create-box-delete-button {
