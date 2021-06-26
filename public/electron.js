@@ -15,6 +15,8 @@ if (isDev) {
     REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS
 }
 
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling
 if (require('electron-squirrel-startup')) {
     app.quit()
@@ -165,7 +167,8 @@ ipcMain.handle('main:readImage', async () => {
 
 const RECIPES_PER_PAGE = 20
 
-ipcMain.handle('recipes:readPage', async (event, page) => {
+ipcMain.handle('recipes:readPage', async (event, page, filter) => {
+    console.log(filter)
     let recipes = db.prepare(`SELECT id, image, name FROM recipes ORDER BY id DESC LIMIT ? OFFSET ?`).all(RECIPES_PER_PAGE, (page - 1) * RECIPES_PER_PAGE)
 
     for (i = 0; i < recipes.length; i++) {
@@ -181,7 +184,8 @@ ipcMain.handle('recipes:readPage', async (event, page) => {
     return recipes
 })
 
-ipcMain.handle('recipes:getTotalPages', async () => {
+ipcMain.handle('recipes:getTotalPages', async (event, filter) => {
+    console.log(filter)
     const count = db.prepare('SELECT COUNT(*) AS count FROM recipes').get().count
 
     return Math.ceil(count / RECIPES_PER_PAGE)

@@ -6,6 +6,7 @@
     --primary-background: #dee4e1;
     --secondary-bright: #7ee8faff;
     --secondary-dark: #8884ffff;
+    --red: #ff5252;
 }
 
 .App {
@@ -71,11 +72,14 @@ button {
     border: none;
 }
 
-input {
+input, select {
     border: none;
     background-color: transparent;
 }
 
+select {
+    cursor: pointer;
+}
 
 input[type="checkbox"] {
     appearance: none;
@@ -134,7 +138,7 @@ input[type="checkbox"]:checked::after {
 
 .add-recipe-button-wrapper {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     margin: 10px;
 }
 
@@ -224,7 +228,7 @@ input[type="checkbox"]:checked::after {
     overflow: hidden;
     cursor: pointer;
     transition: all ease 150ms;
-    border: 2px var(--primary-bright) solid;
+    border: 2px var(--primary-dark) solid;
     animation: fadeIn ease 500ms;
 }
 

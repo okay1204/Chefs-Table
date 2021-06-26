@@ -100,7 +100,7 @@
 }
 
 .create-box .create-box-delete-button {
-    background-color: #ff5252;
+    background-color: var(--red);
     color: white;
 }
 
@@ -227,7 +227,7 @@
 
 .create-box-image {
     max-width: 100%;
-    border: var(--primary-bright) 2px dotted;
+    border: var(--primary-bright) 2px solid;
     border-radius: 10px;
 }
 

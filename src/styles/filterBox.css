@@ -1,0 +1,265 @@
+.filter-box {
+    border: 2px var(--primary-bright) solid;
+    border-left: none;
+    border-right: none;
+    padding: 10px;
+    animation: slideInDown 100ms ease;
+}
+
+.filter-box-fade-all * {
+    animation: fadeIn 400ms ease;
+}
+
+.filter-box-reset {
+    background-color: var(--red);
+    margin: 10px auto;
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 20px;
+}
+
+.filter-box-reset:hover {
+    opacity: 0.7;
+}
+
+.filter-box-text-container {
+    display: flex;
+    justify-content: center;
+}
+
+.filter-box-text-wrapper {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    margin: 0 30px;
+}
+
+.filter-box-text-wrapper label {
+    white-space: nowrap;
+    margin-right: 20px;
+}
+
+.filter-box-text-wrapper button {
+    background-color: var(--red);
+    padding: 10px;
+    color: white;
+    border-radius: 5px 0 0 5px;
+    transition: all 100ms ease;
+}
+
+.filter-box-text-wrapper button.filter-input-gray {
+    background-color: #a0a0a0;
+}
+
+.filter-box-text-wrapper button.filter-input-gray:hover {
+    background-color: #8d8d8d;
+}
+
+.filter-box-text-wrapper input {
+    flex-grow: 1;
+    border: 1px var(--primary-bright) solid;
+    border-left: none;
+    border-radius: 0 5px 5px 0;
+    margin: 5px;
+    margin-left: 0;
+    font-size: 15px;
+    padding: 8px;
+    text-align: left;
+}
+
+.filter-box-text-wrapper .filter-name-input {
+    border: 1px var(--primary-bright) solid;
+    border-radius: 5px;
+}
+
+.filter-box-text-wrapper input:read-only {
+    background-color: #c2c2c2;
+    border: none;
+    padding: 9px;
+    transition: all 100ms ease;
+}
+
+.filter-box-text-wrapper input:read-only:hover {
+    background-color: #c7c7c7;
+}
+
+.filter-box-time-container select {
+    font-size: 18px;
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--background);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.filter-box-time-container select:hover {
+    background-color: #c9c9c9;
+}
+
+.filter-box-time-wrapper {
+    margin: 10px;
+    display: inline-block;
+}
+
+.filter-box-time-wrapper input {
+    width: 50px;
+    text-align: center;
+    font-size: 18px;
+    border: 1px var(--primary-bright) solid;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+.filter-box-time-wrapper label {
+    font-size: 20px;
+}
+
+.filter-box-meals-header {
+    margin-bottom: -10px;
+}
+
+.filter-box-meals-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0;
+}
+
+.filter-box-meal-wrapper {
+    margin: 10px;
+}
+
+.filter-box-meal-buttons {
+    border: 2px var(--primary-dark) solid;
+    border-radius: 5px;
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+}
+
+.filter-box-meal-buttons button {
+    background-color: var(--background);
+    padding: 0;
+    border-right: 1px var(--foreground) dotted;
+}
+
+.filter-box-meal-buttons img:hover,
+.filter-box-meal-buttons button.active img {
+    filter: brightness(0) invert(1);
+}
+
+.filter-box-meal-buttons img {
+    width: 35px;
+    height: 35px;
+    padding: 5px;
+    margin-bottom: -3px;
+}
+
+.filter-box-meal-false:hover,
+.filter-box-meal-false.active {
+    background-color: #f44336;
+}
+
+.filter-box-meal-null:hover,
+.filter-box-meal-null.active {
+    background-color: #888888;
+}
+
+.filter-box-meal-true:hover,
+.filter-box-meal-true.active {
+    background-color: var(--primary-bright);
+}
+
+.filter-box .filter-box-meal-true {
+    border-right: none;
+}
+
+.filter-ingredients-add-button {
+    background-color: var(--primary-bright);
+    display: block;
+    margin: 10px auto;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+.filter-ingredients-add-button:hover,
+.filter-box-submit-filter:hover {
+    opacity: 0.7;
+}
+
+.filter-ingredients-list {
+    display: grid;
+    padding: 0 0;
+    width: 60%;
+    margin: 20px auto;
+    grid-template-columns: 10% 85%;
+}
+
+.filter-ingredients-list input {
+    border: var(--primary-bright) solid 2px;
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    text-align: left;
+    margin-top: 10px;
+}
+
+.filter-box-ingredients-list * {
+    margin: 5px 0;
+}
+
+.filter-box-ingredients-delete {
+    max-width: 39px;
+    cursor: pointer;
+    transition: all ease 100ms;
+    margin: auto;
+    margin-top: 10px;
+}
+
+.filter-box-ingredients-delete img {
+    width: 100%;
+}
+
+.filter-box-ingredients-delete:hover {
+    transform: scale(1.3);
+    opacity: 0.9;
+}
+
+.filter-box-submit-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.filter-box-submit-cancel {
+    background-color: var(--red);
+    display: inline-flex;
+    margin: 10px 10px;
+    color: white;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+.filter-box-submit-cancel:hover {
+    opacity: 0.7;
+}
+
+.filter-box-submit-filter {
+    margin-top: 30px;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--primary-bright);
+    margin: 10px 10px;
+    color: white;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+.filter-box-submit-filter img {
+    filter: brightness(0) invert(1);
+    width: 30px;
+}

@@ -5,13 +5,16 @@ import { setRecipeImage } from './utils.js'
 
 import RecipeBox from './components/recipeBox.js'
 import CreateBox from './components/createBox.js'
+import FilterBox from './components/filterBox.js'
 import ClickOutside from './components/clickOutside.js'
+import ReactTooltip from 'react-tooltip'
 
 import AddCircleBlack from './images/addCircleBlack.png'
 import LeftEmerald from './images/leftEmerald.png'
 import RightEmerald from './images/rightEmerald.png'
 import AddCircleEmerald from './images/addCircleEmerald.png'
 import ExpandEmerald from './images/expandEmerald.png'
+import FilterEmerald from './images/filterEmerald.png'
 
 
 const { ipcRenderer } = window.require('electron')
@@ -26,16 +29,26 @@ class App extends React.Component {
             recipePage: 1,
             totalPages: 1,
             recipeBoxId: null,
-            editBox: null
+            editBox: null,
+            filter: null,
+            filterBox: false,
+            miniCreateBox: false,
+            miniCreateBoxUrl: '',
+            createBox: false
         }
-
+        
         this.ipcRenderer = ipcRenderer
-
+        
         this.setRecipes = this.setRecipes.bind(this)
         this.refreshRecipes = this.refreshRecipes.bind(this)
         this.setRecipePage = this.setRecipePage.bind(this)
-
+        this.setFilter = this.setFilter.bind(this)
+        
         this.miniCreateBoxUrlInput = React.createRef()
+    }
+    
+    componentDidMount() {
+        this.refreshRecipes()
     }
 
     setRecipes(recipes) {
@@ -50,11 +63,11 @@ class App extends React.Component {
     }
 
     refreshRecipes() {
-        this.ipcRenderer.invoke('recipes:readPage', this.state.recipePage).then(recipes => {
+        this.ipcRenderer.invoke('recipes:readPage', this.state.recipePage, this.state.filter).then(recipes => {
             this.setRecipes(recipes)
         })
 
-        this.ipcRenderer.invoke('recipes:getTotalPages', this.state.recipePage).then(totalPages => {
+        this.ipcRenderer.invoke('recipes:getTotalPages', this.state.filter).then(totalPages => {
             this.setState({totalPages})
         })
     }
@@ -63,8 +76,8 @@ class App extends React.Component {
         this.setState({recipePage: newPage}, this.refreshRecipes)
     }
 
-    componentDidMount() {
-        this.refreshRecipes()
+    setFilter(filter) {
+        this.setState({recipePage: 1, filter}, this.refreshRecipes)
     }
 
     render() {
@@ -86,9 +99,14 @@ class App extends React.Component {
         return (
             <div className='App'>
 
+                <ReactTooltip delayShow={1000} effect='solid'/>
+
                 <div className='Header'>
                     <div className='add-recipe-button-wrapper'>
-                        <button className='add-recipe-button' onClick={() => {
+                        <button className='filter-button' data-tip='Search Filter' onClick={() => this.setState({filterBox: this.state.filterBox ? false : true, filter: null})}>
+                            <img src={FilterEmerald} alt='Filter recipes'/>
+                        </button>
+                        <button className='add-recipe-button' data-tip='Add Recipe' onClick={() => {
 
                             if (this.state.miniCreateBox) {
                                 this.miniCreateBoxUrlInput.current.blur()
@@ -100,12 +118,13 @@ class App extends React.Component {
                                 miniCreateBox: !this.state.miniCreateBox
                             })
 
-                        }}>
+                        }}
+                        >
                             <img src={AddCircleEmerald} alt='Add a new recipe' />
                         </button>
                     </div>
-        
-                    {/* mini create box with url input only */}
+
+                    {/* mini create box */}
                     <ClickOutside onClick={() => this.setState({miniCreateBox: false})}>
                         <div className={`mini-create-box ${this.state.miniCreateBox ? '' : 'hidden'}`}>
                             <h1 className='mini-create-box-title'>Enter URL</h1>
@@ -126,7 +145,7 @@ class App extends React.Component {
                                 }}
                             />
                             <button className='mini-create-box-expand-wrapper'>
-                                <img className='mini-create-box-expand' src={ExpandEmerald} alt='Expand' onClick={() => {
+                                <img className='mini-create-box-expand' data-tip='Expand' data-offset="{'left': -15}" data-place='left' src={ExpandEmerald} alt='Expand' onClick={() => {
                                     this.setState({
                                         createBox: {sendRequest: false, url: this.state.miniCreateBoxUrl},
                                         miniCreateBoxUrl: '',
@@ -136,6 +155,11 @@ class App extends React.Component {
                             </button>
                         </div>
                     </ClickOutside>
+
+                    {/* filter */}
+                    {this.state.filterBox && <FilterBox setFilter={this.setFilter}/>}
+
+        
         
                     {/* large create box */}
                     {
@@ -161,7 +185,7 @@ class App extends React.Component {
                             {pageArrows}
                             <div className='recipe-preview-list'>
                                 {this.state.recipes.map(recipe => (
-                                    <div className='recipe-preview' key={recipe.id} onClick={() => this.setState({recipeBoxId: recipe.id})}>
+                                    <div className='recipe-preview' key={recipe.id} onClick={() => this.setState({recipeBoxId: recipe.id})} recipe=''>
                                         <div className='recipe-preview-image-wrapper'>
                                             <img src={recipe.image} alt=''/>
                                         </div>

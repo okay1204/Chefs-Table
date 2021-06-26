@@ -1,7 +1,7 @@
 import '../styles/createBox.css'
 import React from 'react'
 import OutsideAnchor from './outSideAnchor.js'
-import { capitalize } from '../utils.js'
+import { capitalize, MEALS, clamp } from '../utils.js'
 
 import CloseBlack from '../images/closeBlack.png'
 import LoadingWheel from '../images/loadingWheel.gif'
@@ -15,7 +15,7 @@ class CreateBox extends React.Component {
         super()
         
         this.lastIngredientRef = React.createRef()
-        this.meals = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'other']
+        this.meals = MEALS
         const mealObj = {}
         this.meals.forEach((meal) => mealObj[meal] = false)
         
@@ -50,7 +50,6 @@ class CreateBox extends React.Component {
         this.addIngredient = this.addIngredient.bind(this)
         this.getImage = this.getImage.bind(this)   
         this.submitRecipe = this.submitRecipe.bind(this)
-        this.componentDidUpdate = this.componentDidUpdate.bind(this)
 
         this.openRecipeBox = () => {
             this.props.unmount()
@@ -303,7 +302,6 @@ class CreateBox extends React.Component {
         for (const key of Object.keys(this.state.inputIngredients)) {
             let inputRef = false
             if (i === Object.keys(this.state.inputIngredients).length) {
-                console.log(i, Object.keys(this.state.inputIngredients).length)
                 inputRef = true
             }
 
@@ -493,13 +491,13 @@ class CreateBox extends React.Component {
                         <div>
                             <div className='create-box-number-input-wrapper'>
                                 <input type='number' min='0' name='cooking-time' value={this.state.inputHours} onChange={(event) => {
-                                    this.setState({inputHours: event.target.value})
+                                    this.setState({inputHours: Math.max(event.target.value, 0)})
                                 }}/>
                                 <span> hours</span>
                             </div>
                             <div className='create-box-number-input-wrapper'>
                                 <input type='number' min='0' max='59' name='cooking-time' value={this.state.inputMinutes} onChange={(event) => {
-                                    this.setState({inputMinutes: event.target.value})
+                                    this.setState({inputMinutes: clamp(0, event.target.value, 59)})
                                 }}/>
                                 <span> minutes</span>
                             </div>
@@ -508,7 +506,7 @@ class CreateBox extends React.Component {
                         <label htmlFor='create-box-servings'>Servings</label>
                         <div>
                             <input type='number' min='0' id='create-box-servings' name='servings' value={this.state.inputServings} onChange={(event) => {
-                                this.setState({inputServings: event.target.value})
+                                this.setState({inputServings: Math.max(event.target.value, 0)})
                             }}/>
                             <span> servings</span>
                         </div>

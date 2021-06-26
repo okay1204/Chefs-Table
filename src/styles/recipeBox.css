@@ -97,7 +97,7 @@
 .recipe-box-image {
     max-width: 25vw;
     border-radius: 10px;
-    border: var(--primary-bright) 2px solid;
+    border: var(--primary-dark) 2px solid;
     flex-basis: 60%;
 }
 
