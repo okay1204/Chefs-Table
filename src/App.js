@@ -36,11 +36,27 @@ class App extends React.Component {
             miniCreateBoxUrl: '',
             createBox: false,
             animateRecipePreviews: true,
-            clearAllPrompt: false
+            clearAllPrompt: false,
+            devToolsCodeStep : 0
         }
+
+        this.devToolsCode = [
+            'ArrowUp',
+            'ArrowUp',
+            'ArrowDown',
+            'ArrowDown',
+            'ArrowLeft',
+            'ArrowRight',
+            'ArrowLeft',
+            'ArrowRight',
+            'b',
+            'a',
+            'Enter'
+        ]
         
         this.ipcRenderer = ipcRenderer
         
+        this.secretDevTools = this.secretDevTools.bind(this)
         this.setRecipes = this.setRecipes.bind(this)
         this.refreshRecipes = this.refreshRecipes.bind(this)
         this.setRecipePage = this.setRecipePage.bind(this)
@@ -51,6 +67,28 @@ class App extends React.Component {
     
     componentDidMount() {
         this.refreshRecipes()
+
+        document.addEventListener('keydown', this.secretDevTools)
+    }
+    
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.secretDevTools)
+    }
+
+    secretDevTools(event) {
+        
+        if (event.key === this.devToolsCode[this.state.devToolsCodeStep]) {
+            this.setState({devToolsCodeStep: this.state.devToolsCodeStep + 1}, () => {
+                if (this.state.devToolsCodeStep === this.devToolsCode.length) {
+                    this.ipcRenderer.invoke('main:openDevTools')
+                    this.setState({devToolsCodeStep: 0})
+                }
+            })
+        } else if (event.key === this.devToolsCode[0]) {
+            this.setState({devToolsCodeStep: 1})
+        } else {
+            this.setState({devToolsCodeStep: 0})
+        }
     }
 
     setRecipes(recipes) {
@@ -115,7 +153,10 @@ class App extends React.Component {
                         }}>
                             <img src={FilterEmerald} alt='Filter recipes'/>
                         </button>
-                        <button className='clear-all-button' onClick={() => this.setState({clearAllPrompt: true})}>Clear all recipes</button>
+                        <button className='clear-all-button' onClick={() => {
+                            this.setState({clearAllPrompt: true})
+                            document.body.style.overflow = 'hidden'
+                        }}>Clear all recipes</button>
                         <button className='add-recipe-button' data-tip='Add Recipe' onClick={() => {
 
                             if (this.state.miniCreateBox) {
@@ -173,9 +214,13 @@ class App extends React.Component {
                             <div className='clear-all-prompt'>
                                 <h2>Clear all recipes?</h2>
                                 <h3>Warning: This action cannot be undone</h3>
-                                <button className='clear-prompt-cancel-button' onClick={() => this.setState({clearAllPrompt: false})}>Cancel</button>
+                                <button className='clear-prompt-cancel-button' onClick={() => {
+                                    this.setState({clearAllPrompt: false})
+                                    document.body.style.overflow = 'unset'
+                                }}>Cancel</button>
                                 <button className='clear-prompt-confirm-button' onClick={() => {
                                     this.setState({clearAllPrompt: false})
+                                    document.body.style.overflow = 'unset'
                                     this.ipcRenderer.invoke('recipes:clear').then(this.refreshRecipes)
                                 }}>Clear</button>
                             </div>

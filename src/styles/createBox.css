@@ -81,6 +81,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
+    z-index: 20;
 }
 
 .create-box-delete-prompt {
@@ -89,7 +90,7 @@
     left: 0;
     right: 0;
     background-color: var(--primary-background);
-    z-index: 1;
+    z-index: 20;
     border: 2px var(--primary-bright) solid;
     padding: 20px;
     width: fit-content;

@@ -340,17 +340,21 @@ class CreateBox extends React.Component {
                     <div className='create-box-background'><wbr /></div>
                 }
 
-                <div className={`create-box ${this.state.closeAnimating ? 'create-box-animate-out' : ''}`} onAnimationEnd={() => {
-                    if (this.state.closeAnimating) {
-                        if (this.state.refreshRecipes) {
-                            this.props.refreshRecipes()
-                        }
+                <div
+                    className={`create-box ${this.state.closeAnimating ? 'create-box-animate-out' : ''}`}
+                    style={this.state.deletePrompt ? {overflow: 'hidden'} : {overflow: 'scroll'}}
+                    onAnimationEnd={() => {
+                        if (this.state.closeAnimating) {
+                            if (this.state.refreshRecipes) {
+                                this.props.refreshRecipes()
+                            }
 
-                        this.props.unmount()
-                    } else {
-                        this.setState({ openAnimating: false })
+                            this.props.unmount()
+                        } else {
+                            this.setState({ openAnimating: false })
+                        }
                     }
-                }}>
+                }>
 
                     {!this.state.openAnimating && this.state.edit && <img className='create-box-back' src={BackBlack} alt='back' onClick={this.openRecipeBox}/>}
                     {!this.state.openAnimating && <img className='create-box-close' src={CloseBlack} alt='close' onClick={() => this.setState({closeAnimating: true})}/>}

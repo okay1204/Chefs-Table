@@ -10,11 +10,10 @@ const { type } = require('os')
 // Conditionally include the dev tools installer to load React Dev Tools
 let installExtension, REACT_DEVELOPER_TOOLS
 
-if (isDev) {
-    const devTools = require('electron-devtools-installer')
-    installExtension = devTools.default
-    REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS
-}
+const devTools = require('electron-devtools-installer')
+installExtension = devTools.default
+REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS
+
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
@@ -28,13 +27,12 @@ let mainWindow
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 800,
-    webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        devTools: isDev ? true : false
-    }
+        width: 1000,
+        height: 800,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     })
 
     // Hide top menu bar during production
@@ -165,6 +163,10 @@ ipcMain.handle('main:readImage', async () => {
     } else {
         return null
     }
+})
+
+ipcMain.handle('main:openDevTools', async () => {
+    mainWindow.webContents.openDevTools()
 })
 
 // Recipes
