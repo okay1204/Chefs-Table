@@ -424,7 +424,12 @@ ipcMain.handle('recipes:clear', async () => {
     db.prepare('DELETE FROM recipes').run()
     db.prepare('DELETE FROM ingredients').run()
     db.prepare('DELETE FROM meals').run()
-    return []
+    fs.promises.readdir(IMAGES_PATH)
+    .then(files => {
+        files.forEach(file => {
+            fs.promises.unlink(path.join(IMAGES_PATH, file))
+        })
+    })
 })
 
 ipcMain.handle('recipes:webscrape', async (event, url) => {

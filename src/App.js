@@ -35,7 +35,8 @@ class App extends React.Component {
             miniCreateBox: false,
             miniCreateBoxUrl: '',
             createBox: false,
-            animateRecipePreviews: true
+            animateRecipePreviews: true,
+            clearAllPrompt: false
         }
         
         this.ipcRenderer = ipcRenderer
@@ -114,6 +115,7 @@ class App extends React.Component {
                         }}>
                             <img src={FilterEmerald} alt='Filter recipes'/>
                         </button>
+                        <button className='clear-all-button' onClick={() => this.setState({clearAllPrompt: true})}>Clear all recipes</button>
                         <button className='add-recipe-button' data-tip='Add Recipe' onClick={() => {
 
                             if (this.state.miniCreateBox) {
@@ -164,9 +166,24 @@ class App extends React.Component {
                         </div>
                     </ClickOutside>
 
+                    {/* delete prompt */}
+                    {
+                        this.state.clearAllPrompt &&
+                        <div className='clear-all-prompt-background'>
+                            <div className='clear-all-prompt'>
+                                <h2>Clear all recipes?</h2>
+                                <h3>Warning: This action cannot be undone</h3>
+                                <button className='clear-prompt-cancel-button' onClick={() => this.setState({clearAllPrompt: false})}>Cancel</button>
+                                <button className='clear-prompt-confirm-button' onClick={() => {
+                                    this.setState({clearAllPrompt: false})
+                                    this.ipcRenderer.invoke('recipes:clear').then(this.refreshRecipes)
+                                }}>Clear</button>
+                            </div>
+                        </div>
+                    }
+
                     {/* filter */}
                     {this.state.filterBox && <FilterBox setFilter={this.setFilter}/>}
-
         
         
                     {/* large create box */}
