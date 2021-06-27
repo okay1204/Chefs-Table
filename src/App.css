@@ -210,6 +210,14 @@ input[type="checkbox"]:checked::after {
     transform: scale(1.2);
 }
 
+.recipe-no-results {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    align-items: center;
+    justify-content: center;
+}
+
 .recipe-preview-list {
     display: flex;
     align-items: flex-start;
@@ -229,7 +237,6 @@ input[type="checkbox"]:checked::after {
     cursor: pointer;
     transition: all ease 150ms;
     border: 2px var(--primary-dark) solid;
-    animation: fadeIn ease 500ms;
 }
 
 .recipe-preview:hover {

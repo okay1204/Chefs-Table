@@ -34,7 +34,8 @@ class App extends React.Component {
             filterBox: false,
             miniCreateBox: false,
             miniCreateBoxUrl: '',
-            createBox: false
+            createBox: false,
+            animateRecipePreviews: true
         }
         
         this.ipcRenderer = ipcRenderer
@@ -78,6 +79,10 @@ class App extends React.Component {
 
     setFilter(filter) {
         this.setState({recipePage: 1, filter}, this.refreshRecipes)
+
+        if (filter !== this.state.filter) {
+            this.setState({animateRecipePreviews: true})
+        }
     }
 
     render() {
@@ -103,7 +108,10 @@ class App extends React.Component {
 
                 <div className='Header'>
                     <div className='add-recipe-button-wrapper'>
-                        <button className='filter-button' data-tip='Search Filter' onClick={() => this.setState({filterBox: this.state.filterBox ? false : true, filter: null})}>
+                        <button className='filter-button' data-tip='Search Filter' onClick={() => {
+                            this.setState({filterBox: this.state.filterBox ? false : true})
+                            this.setFilter(null)
+                        }}>
                             <img src={FilterEmerald} alt='Filter recipes'/>
                         </button>
                         <button className='add-recipe-button' data-tip='Add Recipe' onClick={() => {
@@ -172,12 +180,20 @@ class App extends React.Component {
                 <div className='MainBody body'>
                     {
                         this.state.recipes && this.state.recipes.length === 0 ?
+
+                        !this.state.filter ?
                         <div className='center'>
-                                <h2>Looks like you don't have any recipes!</h2>
-                                <div className='center-image-in-text'>
-                                    <h3>Click the </h3><img src={AddCircleBlack} alt='Add recipe icon' className='inline-add-circle-icon'/><h3> icon on the top right to add your first recipe.</h3>
-                                </div>
+                            <h2>Looks like you don't have any recipes</h2>
+                            <div className='center-image-in-text'>
+                                <h3>Click the </h3><img src={AddCircleBlack} alt='Add recipe icon' className='inline-add-circle-icon'/><h3> icon on the top right to add your first recipe.</h3>
+                            </div>
                         </div>
+                        :
+                        <div className='recipe-no-results'>
+                            <h2>Someone's gotten too picky</h2>
+                            <h3>No results match your filters.</h3>
+                        </div>
+
                         :
                         <div>
                             <h1>Your recipes</h1>
@@ -185,7 +201,7 @@ class App extends React.Component {
                             {pageArrows}
                             <div className='recipe-preview-list'>
                                 {this.state.recipes.map(recipe => (
-                                    <div className='recipe-preview' key={recipe.id} onClick={() => this.setState({recipeBoxId: recipe.id})} recipe=''>
+                                    <div className={`recipe-preview ${this.state.animateRecipePreviews ? 'animate__animated animate__fadeIn animate__faster' : ''}`} onAnimationEnd={() => this.setState({animateRecipePreviews: false})} key={recipe.id} onClick={() => this.setState({recipeBoxId: recipe.id})} recipe=''>
                                         <div className='recipe-preview-image-wrapper'>
                                             <img src={recipe.image} alt=''/>
                                         </div>

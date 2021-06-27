@@ -21,7 +21,7 @@ class FilterBox extends React.Component {
             inputProtein: '',
             // inputProteinText is for actual text, while protein can have null value for none
             inputProteinText: '',
-            inputTimeFilter: 0,
+            inputTimeFilter: 1,
             inputHours: 0,
             inputMinutes: 0,
             inputMeals: this.emptyFilterMeals,
@@ -110,7 +110,7 @@ class FilterBox extends React.Component {
                     inputName: '',
                     inputProtein: '',
                     inputProteinText: '',
-                    inputTimeFilter: 0,
+                    inputTimeFilter: 1,
                     inputHours: 0,
                     inputMinutes: 0,
                     inputMeals: this.emptyFilterMeals,
@@ -149,15 +149,15 @@ class FilterBox extends React.Component {
 
                 <h2>Total Cook Time</h2>
                 <div className='filter-box-time-container'>
-                    <select onChange={event => {
+                    <select value={this.state.inputTimeFilter} onChange={event => {
                         if (event.target.value === 'More than') {
                             this.setState({inputTimeFilter: 1})
                         } else {
                             this.setState({inputTimeFilter: 0})
                         }
                     }}>
-                        <option>Less than</option>
-                        <option>More than</option>
+                        <option value='0'>Less than</option>
+                        <option value='1'>More than</option>
                     </select>
                     <div className='filter-box-time-wrapper'>
                         <input id='filter-box-hours'

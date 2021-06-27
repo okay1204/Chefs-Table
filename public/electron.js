@@ -1,10 +1,11 @@
 const path = require('path')
 const { app, ipcMain, BrowserWindow, shell, dialog } = require('electron')
 const isDev = require('electron-is-dev')
-const fs = require('fs').promises
+const fs = require('fs')
 const { WebScrape } = require('./webscrape.js')
 const Database = require('better-sqlite3')
 const axios = require('axios')
+const { type } = require('os')
 
 // Conditionally include the dev tools installer to load React Dev Tools
 let installExtension, REACT_DEVELOPER_TOOLS
@@ -95,8 +96,11 @@ const RESOURCE_PATH = isDev
 
 const DATABASE_PATH = path.join(RESOURCE_PATH, 'chefs-table.db')
 const IMAGES_PATH = path.join(RESOURCE_PATH, '/images')
-fs.mkdir(IMAGES_PATH, { recursive: true })
+fs.promises.mkdir(IMAGES_PATH, { recursive: true })
 
+if (!fs.existsSync(DATABASE_PATH)) {
+    fs.writeFileSync(DATABASE_PATH, '')
+}
 const db = new Database(DATABASE_PATH)
 
 // set up all tables
@@ -156,7 +160,7 @@ ipcMain.handle('main:readImage', async () => {
     })
 
     if (filePaths.length > 0) {
-        data = await fs.readFile(filePaths[0])
+        data = await fs.promises.readFile(filePaths[0])
         return data
     } else {
         return null
@@ -167,17 +171,110 @@ ipcMain.handle('main:readImage', async () => {
 
 const RECIPES_PER_PAGE = 20
 
+const addBackslashes = (string) => {
+    return string.replace('%', '\\%').replace('_', '\\_')
+}
+
+const searchLike = (columnName) => {
+    return `${columnName} LIKE '%' || ? || '%' ESCAPE '\\'`
+}
+
+const filterQuery = (get, filter, limit, offset) => {
+    const queryArgs = []
+
+    queryArgs.push(addBackslashes(filter.inputName))
+        
+    if (filter.inputProtein !== null) {
+        queryArgs.push(addBackslashes(filter.inputProtein))
+    }
+    
+    queryArgs.push((filter.inputHours * 60) + filter.inputMinutes)
+    
+    let shouldHaveMeals = []
+    let shouldntHaveMeals = []
+    
+    for (let i = 0; i < Object.keys(filter.inputMeals).length; i++) {
+        const meal = Object.keys(filter.inputMeals)[i]
+        const value = Object.values(filter.inputMeals)[i]
+    
+        if (value === true) {
+            shouldHaveMeals.push(`'${meal}'`)
+        } else if (value === false) {
+            shouldntHaveMeals.push(`'${meal}'`)
+        }
+    }
+    
+    if (shouldHaveMeals.length > 0) {
+        queryArgs.push(shouldHaveMeals.length)
+    }
+    
+    filter.inputIngredients = Object.values(filter.inputIngredients)
+    filter.inputIngredients.forEach(ingredient => queryArgs.push(ingredient))
+
+    if (limit && offset) {
+        queryArgs.push(limit, offset)
+    }
+
+    return [db.prepare(
+        `SELECT ${get} FROM recipes WHERE
+            ${searchLike('name')}
+        AND
+            (${filter.inputProtein !== null ? searchLike('protein') + ' OR protein IS NULL' : 'protein IS NOT NULL'})
+        AND
+            totalMinutes ${filter.inputTimeFilter ? '>=' : '<='} ?
+        ${shouldHaveMeals.length > 0 ?
+            `
+            AND
+                (
+                    SELECT COUNT(*) FROM meals WHERE meal IN (${shouldHaveMeals.join(', ')}) AND recipeId = recipes.id
+                )
+                = ?
+            `
+        : ''}
+        ${shouldntHaveMeals.length > 0 ?
+            `
+            AND NOT EXISTS
+                (
+                    SELECT 1 FROM meals WHERE meal IN (${shouldntHaveMeals.join(', ')}) AND recipeId = recipes.id
+                )
+            `
+        : ''}
+        ${filter.inputIngredients.length > 0 ? 
+            filter.inputIngredients.map(() => 
+            `
+            AND EXISTS 
+                (
+                    SELECT 1 FROM ingredients WHERE ${searchLike('ingredient')} AND recipeId = recipes.id
+                )
+            `)
+            .join('')
+        : ''}
+        ORDER BY recipes.id DESC
+        ${limit && offset ? 'LIMIT ? OFFSET ?' : ''}
+    `), queryArgs]
+}
+
 ipcMain.handle('recipes:readPage', async (event, page, filter) => {
-    console.log(filter)
-    let recipes = db.prepare(`SELECT id, image, name FROM recipes ORDER BY id DESC LIMIT ? OFFSET ?`).all(RECIPES_PER_PAGE, (page - 1) * RECIPES_PER_PAGE)
+    
+    const queryArgs = []
+    const limit = RECIPES_PER_PAGE
+    const offset = (page - 1) * RECIPES_PER_PAGE
+    let recipes
+
+    if (filter) {
+        const [query, queryArgs] = filterQuery('id, name, image', filter, limit, offset)
+        recipes = query.all(...queryArgs)
+    } else {
+        recipes = db.prepare(`SELECT id, image, name FROM recipes ORDER BY id DESC LIMIT ? OFFSET ?`).all(limit, offset)
+    }
 
     for (i = 0; i < recipes.length; i++) {
         recipe = recipes[i]
 
         if (recipe.image === 'local') {
-            recipe.image = await fs.readFile(path.join(IMAGES_PATH, String(recipe.id)))
+            recipe.image = await fs.promises.readFile(path.join(IMAGES_PATH, String(recipe.id)))
         } else if (!recipe.image) {
-            recipe.image = await fs.readFile(path.join(__dirname, 'no photo.png'))
+            recipe.image = await fs.promises.readFile(path.join(__dirname, 'no photo.png'))
         }
     }
 
@@ -185,8 +282,14 @@ ipcMain.handle('recipes:readPage', async (event, page, filter) => {
 })
 
 ipcMain.handle('recipes:getTotalPages', async (event, filter) => {
-    console.log(filter)
-    const count = db.prepare('SELECT COUNT(*) AS count FROM recipes').get().count
+    let count
+
+    if (filter) {
+        const [query, queryArgs] = filterQuery('COUNT(*) AS count', filter)
+        count = query.get(queryArgs).count
+    } else {
+        count = db.prepare('SELECT COUNT(*) AS count FROM recipes').get().count
+    } 
 
     return Math.ceil(count / RECIPES_PER_PAGE)
 })
@@ -196,10 +299,10 @@ ipcMain.handle('recipes:readRecipe', async (event, recipeId) => {
 
     let imageType = 'url'
     if (recipe.image === 'local') {
-        recipe.image = await fs.readFile(path.join(IMAGES_PATH, String(recipeId)))
+        recipe.image = await fs.promises.readFile(path.join(IMAGES_PATH, String(recipeId)))
         imageType = 'binary'
     } else if (!recipe.image) {
-        recipe.image = await fs.readFile(path.join(__dirname, 'no photo.png'))
+        recipe.image = await fs.promises.readFile(path.join(__dirname, 'no photo.png'))
         imageType = 'none'
     }
 
@@ -238,7 +341,7 @@ ipcMain.handle('recipes:add', async (event, newRecipe) => {
             image = newRecipe.image
         } else {
             image = 'local'
-            fs.writeFile(path.join(IMAGES_PATH, String(lastInsertRowid)), newRecipe.image)
+            fs.promises.writeFile(path.join(IMAGES_PATH, String(lastInsertRowid)), newRecipe.image)
         }
         
         db.prepare('UPDATE recipes SET image = ? WHERE id = ?').run(image, lastInsertRowid)
@@ -272,7 +375,7 @@ ipcMain.handle('recipes:edit', async (event, newRecipe) => {
     
     let oldImage = db.prepare('SELECT image FROM recipes WHERE id = ?').get(newRecipe.id).image
     if (oldImage === 'local') {
-        await fs.unlink(path.join(IMAGES_PATH, String(newRecipe.id)))
+        await fs.promises.unlink(path.join(IMAGES_PATH, String(newRecipe.id)))
     }
     
     if (newRecipe.imageType) {
@@ -282,7 +385,7 @@ ipcMain.handle('recipes:edit', async (event, newRecipe) => {
             image = newRecipe.image
         } else {
             image = 'local'
-            fs.writeFile(path.join(IMAGES_PATH, String(newRecipe.id)), newRecipe.image)
+            fs.promises.writeFile(path.join(IMAGES_PATH, String(newRecipe.id)), newRecipe.image)
         }
         
         db.prepare('UPDATE recipes SET image = ? WHERE id = ?').run(image, newRecipe.id)
@@ -309,7 +412,7 @@ ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
 
     // delete saved image if exists
     if (image === 'local') {
-        await fs.unlink(path.join(IMAGES_PATH, String(recipeIdToRemove)))
+        await fs.promises.unlink(path.join(IMAGES_PATH, String(recipeIdToRemove)))
     }
     
     db.prepare('DELETE FROM recipes WHERE id = ?').run(recipeIdToRemove)
