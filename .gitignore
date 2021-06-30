@@ -7,10 +7,11 @@
 
 # testing
 /coverage
-/dev/*
+/dev
 
 # production
 /build
+/out
 
 # misc
 .DS_Store

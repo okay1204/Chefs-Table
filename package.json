@@ -6,6 +6,7 @@
   "author": {
     "name": "Zackaria Ghanbari"
   },
+  "homepage": "./",
   "description": "Easily manage your cooking recipes accross any site.",
   "dependencies": {
     "@testing-library/jest-dom": "^5.12.0",
@@ -65,27 +66,15 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+          "icon": "./public/chefs-table"
+      },
       "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "chefs_table"
-          }
-        },
         {
           "name": "@electron-forge/maker-zip",
           "platforms": [
-            "darwin"
+            "win32"
           ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
         }
       ]
     }
