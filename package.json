@@ -31,10 +31,6 @@
   "scripts": {
     "electron": "wait-on tcp:3000 && electron-forge start",
     "start": "concurrently -k \"cross-env BROWSER=none react-scripts start\" \"npm:electron\"",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "package": "react-scripts build && electron-forge package",
     "make": "react-scripts build && electron-forge make"
   },
   "eslintConfig": {

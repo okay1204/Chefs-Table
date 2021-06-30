@@ -7,6 +7,7 @@ const Database = require('better-sqlite3')
 const axios = require('axios')
 const log = require('electron-log')
 const devTools = require('electron-devtools-installer')
+const os = require('os')
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
@@ -32,7 +33,8 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
-        }
+        },
+        icon: os.platform() === 'darwin' ? path.join(__dirname, 'chefs-table.icns') : path.join(__dirname, 'chefs-table.ico')
     })
 
     // Hide top menu bar during production
