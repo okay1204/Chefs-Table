@@ -8,6 +8,8 @@ import CloseBlack from '../images/closeBlack.png'
 import LoadingWheel from '../images/loadingWheel.gif'
 import EditBlack from '../images/editBlack.png'
 
+const { ipcRenderer } = window.require('electron')
+
 class RecipeBox extends React.Component {
 
     constructor() {
@@ -29,7 +31,7 @@ class RecipeBox extends React.Component {
     
     componentDidMount() {
         document.body.style.overflow = 'hidden'
-        this.props.ipcRenderer.invoke('recipes:readRecipe', this.props.recipeId)
+        ipcRenderer.invoke('recipes:readRecipe', this.props.recipeId)
         .then((recipe) => {
             const rawImage = recipe.image
             this.setState({ recipe: setRecipeImage(recipe), rawImage, loading: false })
@@ -150,7 +152,7 @@ class RecipeBox extends React.Component {
                                 <div className='recipe-box-url'>
                                     <h3>URL</h3>
                                     {this.state.recipe.url ?
-                                    <OutsideAnchor ipcRenderer={this.props.ipcRenderer} href={this.state.recipe.url} className='recipe-box-url-anchor'>{this.state.recipe.url}</OutsideAnchor>
+                                    <OutsideAnchor href={this.state.recipe.url} className='recipe-box-url-anchor'>{this.state.recipe.url}</OutsideAnchor>
                                     :
                                     <span>None</span>}
                                 </div>

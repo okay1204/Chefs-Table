@@ -5,17 +5,17 @@ const fs = require('fs')
 const { WebScrape } = require('./webscrape.js')
 const Database = require('better-sqlite3')
 const axios = require('axios')
-const { type } = require('os')
-
-// Conditionally include the dev tools installer to load React Dev Tools
-let installExtension, REACT_DEVELOPER_TOOLS
-
+const log = require('electron-log')
 const devTools = require('electron-devtools-installer')
-installExtension = devTools.default
-REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS
-
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
+
+log.transports.file.level = 'info';
+
+// do not log ExtensionLoadWarning as it is an issue with the library itself
+console.error = error => !error.includes('ExtensionLoadWarning') && log.error(error)
+
+console.warn = console.warn
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling
 if (require('electron-squirrel-startup')) {
@@ -64,7 +64,7 @@ app.whenReady().then(() => {
     createWindow()
 
     if (isDev) {
-    installExtension(REACT_DEVELOPER_TOOLS)
+        devTools.default(devTools.REACT_DEVELOPER_TOOLS)
         .then(name => console.log(`Added Extension:  ${name}`))
         .catch(error => console.log(`An error occurred: , ${error}`))
     }
@@ -165,8 +165,8 @@ ipcMain.handle('main:readImage', async () => {
     }
 })
 
-ipcMain.handle('main:openDevTools', async () => {
-    mainWindow.webContents.openDevTools()
+ipcMain.handle('main:logError', (event, error) => {
+    log.error('Renderer Process - ' + error.stack)
 })
 
 // Recipes
@@ -357,6 +357,7 @@ ipcMain.handle('recipes:add', async (event, newRecipe) => {
     const addMeal = db.prepare('INSERT INTO meals (recipeId, meal) VALUES (?, ?)')
     newRecipe.meals.forEach(meal => addMeal.run(lastInsertRowid, meal))
     
+    log.info(`Added recipe with id ${lastInsertRowid}\n${JSON.stringify(newRecipeTemplate, null, 4)}`)
     return newRecipeTemplate
 })
 
@@ -406,6 +407,7 @@ ipcMain.handle('recipes:edit', async (event, newRecipe) => {
     const addMeal = db.prepare('INSERT INTO meals (recipeId, meal) VALUES (?, ?)')
     newRecipe.meals.forEach(meal => addMeal.run(newRecipe.id, meal))
     
+    log.info(`Edited recipe with id ${lastInsertRowid}\n${JSON.stringify(newRecipe, null, 4)}`)
     return newRecipeTemplate
 })
 
@@ -420,6 +422,8 @@ ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
     db.prepare('DELETE FROM recipes WHERE id = ?').run(recipeIdToRemove)
     db.prepare('DELETE FROM ingredients WHERE recipeId = ?').run(recipeIdToRemove)
     db.prepare('DELETE FROM meals WHERE recipeId = ?').run(recipeIdToRemove)
+
+    log.info('Removed recipe with id ' + recipeIdToRemove)
 })
 
 ipcMain.handle('recipes:clear', async () => {
@@ -432,6 +436,8 @@ ipcMain.handle('recipes:clear', async () => {
             fs.promises.unlink(path.join(IMAGES_PATH, file))
         })
     })
+
+    log.info('Cleared all recipes')
 })
 
 ipcMain.handle('recipes:webscrape', async (event, url) => {

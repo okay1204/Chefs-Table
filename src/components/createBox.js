@@ -9,6 +9,8 @@ import DeleteIcon from '../images/delete.png'
 import CloseRed from '../images/closeRed.png'
 import BackBlack from '../images/backBlack.png'
 
+const { ipcRenderer } = window.require('electron')
+
 class CreateBox extends React.Component {
     
     constructor() {
@@ -124,7 +126,7 @@ class CreateBox extends React.Component {
 
         this.setState({urlLoading: true})
 
-        this.props.ipcRenderer.invoke('recipes:webscrape', url)
+        ipcRenderer.invoke('recipes:webscrape', url)
         .then(({error, data: recipeData}) => {
             if (error) throw error
 
@@ -192,7 +194,7 @@ class CreateBox extends React.Component {
 
         this.setState({imageLoading: true})
 
-        this.props.ipcRenderer.invoke('main:isImageUrl', url)
+        ipcRenderer.invoke('main:isImageUrl', url)
         .then(result => {
             if (result.isImage) {
                 this.setState({
@@ -257,7 +259,7 @@ class CreateBox extends React.Component {
 
         // if adding a recipe
         if (!this.state.edit) {
-            this.props.ipcRenderer.invoke('recipes:add', {
+            ipcRenderer.invoke('recipes:add', {
                 url,
                 imageType,
                 image,
@@ -276,7 +278,7 @@ class CreateBox extends React.Component {
             })
         } else {
 
-            this.props.ipcRenderer.invoke('recipes:edit', {
+            ipcRenderer.invoke('recipes:edit', {
                 id: this.state.edit,
                 url,
                 imageType,
@@ -371,7 +373,7 @@ class CreateBox extends React.Component {
                                     if (this.state.submitLoading) return
                                     this.setState({submitLoading: true})
 
-                                    this.props.ipcRenderer.invoke('recipes:remove', this.state.edit)
+                                    ipcRenderer.invoke('recipes:remove', this.state.edit)
                                     .then(() => {
                                         this.props.refreshRecipes()
                                         this.props.unmount()
@@ -411,7 +413,6 @@ class CreateBox extends React.Component {
                                 return (
                                     <OutsideAnchor
                                         key={website}
-                                        ipcRenderer={this.props.ipcRenderer}
                                         href={domain}
                                     >
                                         {website}
@@ -426,7 +427,7 @@ class CreateBox extends React.Component {
                     <h3>Image</h3>
                     <div className='create-box-image-select'>
                         <button onClick={() => {
-                            this.props.ipcRenderer.invoke('main:readImage')
+                            ipcRenderer.invoke('main:readImage')
                             .then(data => {
                                 if (data) {
                                     this.setState({

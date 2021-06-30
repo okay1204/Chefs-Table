@@ -2,11 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import ErrorSender from './ErrorSender'
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
     <React.StrictMode>
-        <App />
+        <ErrorSender>
+            <App />
+        </ErrorSender>
     </React.StrictMode>,
     document.getElementById('root')
 );

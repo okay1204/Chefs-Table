@@ -1,6 +1,8 @@
 import '../styles/outsideAnchor.css'
 
-function OutsideAnchor({children, className, ipcRenderer, href}) {
+const { ipcRenderer } = window.require('electron')
+
+function OutsideAnchor({children, className, href}) {
     return (
         <span className={`outside-anchor ${className ? className : ''}`} onClick={() => ipcRenderer.send('main:loadGH', href)}>
             {children}

@@ -139,7 +139,7 @@ class App extends React.Component {
                 </button>
             </div>
         )
-
+        
         return (
             <div className='App'>
 
@@ -234,7 +234,7 @@ class App extends React.Component {
                     {/* large create box */}
                     {
                         this.state.createBox &&
-                        <CreateBox unmount={() => this.setState({createBox: false})} refreshRecipes={this.refreshRecipes} ipcRenderer={this.ipcRenderer} initialValue={this.state.createBox}/>
+                        <CreateBox unmount={() => this.setState({createBox: false})} refreshRecipes={this.refreshRecipes} initialValue={this.state.createBox}/>
                     }
         
                 </div>
@@ -277,11 +277,11 @@ class App extends React.Component {
 
 
                     {
-                        this.state.recipeBoxId && <RecipeBox recipeId={this.state.recipeBoxId} ipcRenderer={this.ipcRenderer} unmount={() => this.setState({recipeBoxId: null})} openEditBox={(initialValue) => this.setState({editBox: initialValue})}/>
+                        this.state.recipeBoxId && <RecipeBox recipeId={this.state.recipeBoxId} unmount={() => this.setState({recipeBoxId: null})} openEditBox={(initialValue) => this.setState({editBox: initialValue})}/>
                     }
 
                     {
-                        this.state.editBox && <CreateBox ipcRenderer={ipcRenderer} initialValue={this.state.editBox} unmount={() => this.setState({editBox: null})} openRecipeBox={(recipeBoxId) => this.setState({editBox: recipeBoxId})} refreshRecipes={this.refreshRecipes}/>
+                        this.state.editBox && <CreateBox initialValue={this.state.editBox} unmount={() => this.setState({editBox: null})} openRecipeBox={(recipeBoxId) => this.setState({editBox: recipeBoxId})} refreshRecipes={this.refreshRecipes}/>
                     }
                     
                 </div>
