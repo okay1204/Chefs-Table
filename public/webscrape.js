@@ -83,7 +83,7 @@ class WebScrape {
         const data = JSON.parse(root.querySelector('script').rawText)[1]
 
         const name = he.decode(data.name)
-        const protein = he.decode(this.proteinFromName(name))
+        const protein = this.proteinFromName(name)
         const ingredients = data.recipeIngredient
 
         const instructions = data.recipeInstructions.map((step) => he.decode(step.text)).join('\n')
@@ -115,7 +115,7 @@ class WebScrape {
 
         const name = he.decode(root.querySelector('.recipe-title').rawText.trim())
         const imageUrl = root.querySelector('.recipe-intro .media-container picture img').attributes.src
-        const protein = he.decode(this.proteinFromName(name))
+        const protein = this.proteinFromName(name)
 
         
         let ingredientQuantities = root.querySelectorAll('.recipe-ingredients li .quantity')
