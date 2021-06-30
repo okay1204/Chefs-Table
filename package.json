@@ -67,7 +67,8 @@
   "config": {
     "forge": {
       "packagerConfig": {
-          "icon": "./public/chefs-table"
+          "icon": "./public/chefs-table",
+          "asar": true
       },
       "makers": [
         {
