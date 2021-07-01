@@ -1,5 +1,5 @@
 const path = require('path')
-const { app, ipcMain, BrowserWindow, shell, dialog } = require('electron')
+const { app, ipcMain, BrowserWindow, shell, dialog, nativeImage } = require('electron')
 const isDev = require('electron-is-dev')
 const fs = require('fs')
 const { WebScrape } = require('./webscrape.js')
@@ -8,6 +8,7 @@ const axios = require('axios')
 const log = require('electron-log')
 const devTools = require('electron-devtools-installer')
 const os = require('os')
+const { electron } = require('process')
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
@@ -34,8 +35,14 @@ function createWindow() {
             nodeIntegration: true,
             contextIsolation: false
         },
-        icon: os.platform() === 'darwin' ? path.join(__dirname, 'chefs-table.icns') : path.join(__dirname, 'chefs-table.ico')
+        icon: os.platform() === 'darwin' ? path.join(__dirname, 'chefs-table.icns') : path.join(__dirname, 'chefs-table.ico'),
+        title: 'Chef\'s Table'
     })
+
+    if (os.platform() === 'darwin') {
+        const image = nativeImage.createFromPath(path.join(__dirname, 'chefs-table.icns'))
+        app.dock.setIcon(image)
+    }
 
     // Hide top menu bar during production
     if (!isDev) {
@@ -76,8 +83,8 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-    db.close()
     if (process.platform !== 'darwin') {
+        db.close()
         app.quit()
     }
 })
