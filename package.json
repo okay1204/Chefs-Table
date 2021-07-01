@@ -33,7 +33,8 @@
   "scripts": {
     "electron": "wait-on tcp:3000 && electron-forge start",
     "start": "concurrently -k \"cross-env BROWSER=none react-scripts start\" \"npm:electron\"",
-    "make": "react-scripts build && electron-forge make"
+    "make": "react-scripts build && electron-forge make",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=public/chefs-table.icns --prune=true "
   },
   "eslintConfig": {
     "extends": [
