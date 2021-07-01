@@ -35,8 +35,7 @@ function createWindow() {
             nodeIntegration: true,
             contextIsolation: false
         },
-        icon: os.platform() === 'darwin' ? path.join(__dirname, 'chefs-table.icns') : path.join(__dirname, 'chefs-table.ico'),
-        title: 'Chef\'s Table'
+        icon: os.platform() === 'darwin' ? path.join(__dirname, 'chefs-table.icns') : path.join(__dirname, 'chefs-table.ico')
     })
 
     if (os.platform() === 'darwin') {
