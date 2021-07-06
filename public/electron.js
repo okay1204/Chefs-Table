@@ -65,11 +65,9 @@ function createWindow() {
 app.whenReady().then(() => {
     createWindow()
 
-    if (isDev) {
-        devTools.default(devTools.REACT_DEVELOPER_TOOLS)
-        .then(name => console.log(`Added Extension:  ${name}`))
-        .catch(error => console.log(`An error occurred: , ${error}`))
-    }
+    devTools.default(devTools.REACT_DEVELOPER_TOOLS)
+    .then(name => console.log(`Added Extension:  ${name}`))
+    .catch(error => console.error(error))
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
