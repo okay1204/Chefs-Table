@@ -149,13 +149,7 @@ class FilterBox extends React.Component {
 
                 <h2>Total Cook Time</h2>
                 <div className='filter-box-time-container'>
-                    <select value={this.state.inputTimeFilter} onChange={event => {
-                        if (event.target.value === 'More than') {
-                            this.setState({inputTimeFilter: 1})
-                        } else {
-                            this.setState({inputTimeFilter: 0})
-                        }
-                    }}>
+                    <select value={this.state.inputTimeFilter} onChange={event => this.setState({inputTimeFilter: event.target.value})}>
                         <option value='0'>Less than</option>
                         <option value='1'>More than</option>
                     </select>
