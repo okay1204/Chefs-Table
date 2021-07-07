@@ -158,7 +158,8 @@ class FilterBox extends React.Component {
                                 type='number'
                                 min='0'
                                 value={this.state.inputHours}
-                                onChange={event => this.setState({inputHours: Math.max(event.target.value, 0)})}
+                                onChange={event => this.setState({inputHours: event.target.value})}
+                                onBlur={event => this.setState({inputHours: Math.max(event.target.value, 0)})}
                         />
                         <label htmlFor='filter-box-hours'>Hours</label>
                     </div>
@@ -168,7 +169,8 @@ class FilterBox extends React.Component {
                                 min='0'
                                 max='59'
                                 value={this.state.inputMinutes}
-                                onChange={event => this.setState({inputMinutes: clamp(0, event.target.value, 59)})}
+                                onChange={event => this.setState({inputMinutes: event.target.value})}
+                                onBlur={event => this.setState({inputMinutes: clamp(0, event.target.value, 59)})}
                         />
                         <label htmlFor='filter-box-minutes'>Minutes</label>
                     </div>

@@ -495,24 +495,30 @@ class CreateBox extends React.Component {
                         <label>Total Cooking Time</label>
                         <div>
                             <div className='create-box-number-input-wrapper'>
-                                <input type='number' min='0' name='cooking-time' value={this.state.inputHours} onChange={(event) => {
-                                    this.setState({inputHours: Math.max(event.target.value, 0)})
-                                }}/>
+                                <input type='number' min='0' name='cooking-time' 
+                                    value={this.state.inputHours}
+                                    onChange={event => this.setState({inputHours: event.target.value})}
+                                    onBlur={event => this.setState({inputHours: Math.max(event.target.value, 0)})}
+                                />
                                 <span> hours</span>
                             </div>
                             <div className='create-box-number-input-wrapper'>
-                                <input type='number' min='0' max='59' name='cooking-time' value={this.state.inputMinutes} onChange={(event) => {
-                                    this.setState({inputMinutes: clamp(0, event.target.value, 59)})
-                                }}/>
+                                <input type='number' min='0' max='59' name='cooking-time'
+                                    value={this.state.inputMinutes}
+                                    onChange={event => this.setState({inputMinutes: event.target.value})}
+                                    onBlur={event => this.setState({inputMinutes: clamp(0, event.target.value, 59)})}
+                                />
                                 <span> minutes</span>
                             </div>
                         </div>
 
                         <label htmlFor='create-box-servings'>Servings</label>
                         <div>
-                            <input type='number' min='0' id='create-box-servings' name='servings' value={this.state.inputServings} onChange={(event) => {
-                                this.setState({inputServings: Math.max(event.target.value, 0)})
-                            }}/>
+                            <input type='number' min='0' id='create-box-servings' name='servings'
+                                value={this.state.inputServings}
+                                onChange={event => this.setState({inputServings: event.target.value})}
+                                onBlur={event => this.setState({inputServings: Math.max(event.target.value, 0)})}
+                            />
                             <span> servings</span>
                         </div>
                     </div>
