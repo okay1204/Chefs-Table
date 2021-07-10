@@ -15,6 +15,7 @@ import RightEmerald from './images/rightEmerald.png'
 import AddCircleEmerald from './images/addCircleEmerald.png'
 import ExpandEmerald from './images/expandEmerald.png'
 import FilterEmerald from './images/filterEmerald.png'
+import GroceryListEmerald from './images/groceryListEmerald.png'
 
 
 const { ipcRenderer } = window.require('electron')
@@ -146,33 +147,42 @@ class App extends React.Component {
                 <ReactTooltip delayShow={1000} effect='solid'/>
 
                 <div className='Header'>
-                    <div className='add-recipe-button-wrapper'>
-                        <button className='filter-button' data-tip='Search Filter' onClick={() => {
-                            this.setState({filterBox: this.state.filterBox ? false : true})
-                            this.setFilter(null)
-                        }}>
-                            <img src={FilterEmerald} alt='Filter recipes'/>
-                        </button>
-                        <button className='clear-all-button' onClick={() => {
-                            this.setState({clearAllPrompt: true})
-                            document.body.style.overflow = 'hidden'
-                        }}>Clear all recipes</button>
-                        <button className='add-recipe-button' data-tip='Add Recipe' onClick={() => {
+                    <div className='header-buttons-wrapper'>
+                        <div className='filter-button-wrapper'>
+                            <button className='filter-button' data-tip='Search Filter' onClick={() => {
+                                this.setState({filterBox: this.state.filterBox ? false : true})
+                                this.setFilter(null)
+                            }}>
+                                <img src={FilterEmerald} alt='Filter recipes'/>
+                            </button>
+                        </div>
+                        <div className='grocery-list-button-wrapper'>
+                            <button data-tip='Grocery List'>
+                                <img src={GroceryListEmerald} alt='Grocery List' />
+                            </button>
+                        </div>
+                        <div className='recipe-manage-buttons-wrapper'>
+                            <button className='clear-all-button' onClick={() => {
+                                this.setState({clearAllPrompt: true})
+                                document.body.style.overflow = 'hidden'
+                            }}>Clear all recipes</button>
+                            <button className='add-recipe-button' data-tip='Add Recipe' onClick={() => {
 
-                            if (this.state.miniCreateBox) {
-                                this.miniCreateBoxUrlInput.current.blur()
-                            } else {
-                                this.miniCreateBoxUrlInput.current.focus()
-                            }
+                                if (this.state.miniCreateBox) {
+                                    this.miniCreateBoxUrlInput.current.blur()
+                                } else {
+                                    this.miniCreateBoxUrlInput.current.focus()
+                                }
 
-                            this.setState({
-                                miniCreateBox: !this.state.miniCreateBox
-                            })
+                                this.setState({
+                                    miniCreateBox: !this.state.miniCreateBox
+                                })
 
-                        }}
-                        >
-                            <img src={AddCircleEmerald} alt='Add a new recipe' />
-                        </button>
+                            }}
+                            >
+                                <img src={AddCircleEmerald} alt='Add a new recipe' />
+                            </button>
+                        </div>
                     </div>
 
                     {/* mini create box */}

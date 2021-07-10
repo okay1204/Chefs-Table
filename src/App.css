@@ -1,7 +1,7 @@
 :root {
     --background: #d1d1d1;
     --foreground: #000000;
-    --primary-bright: #16c172ff;
+    --primary-bright: #16c172;
     --primary-dark: #214f4bff;
     --primary-background: #dee4e1;
     --secondary-bright: #7ee8faff;
@@ -200,10 +200,29 @@ input[type="checkbox"]:checked::after {
     transform: scale(1.1, 1.1);
 }
 
-.add-recipe-button-wrapper {
+.header-buttons-wrapper {
     display: flex;
     justify-content: space-between;
     margin: 10px;
+}
+
+.header-buttons-wrapper > * {
+    flex: 1 1 0;
+}
+
+.filter-button-wrapper {
+    display: flex;
+}
+
+.grocery-list-button-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.recipe-manage-buttons-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .inline-add-circle-icon {

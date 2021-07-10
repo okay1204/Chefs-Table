@@ -105,6 +105,7 @@ const db = new Database(DATABASE_PATH)
 db.prepare('CREATE TABLE IF NOT EXISTS recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, image TEXT, name TEXT, protein TEXT, totalMinutes INTEGER, servings INTEGER, instructions TEXT)').run()
 db.prepare('CREATE TABLE IF NOT EXISTS ingredients (id INTEGER PRIMARY KEY AUTOINCREMENT, recipeId INTEGER NOT NULL, ingredient TEXT)').run()
 db.prepare('CREATE TABLE IF NOT EXISTS meals (id INTEGER PRIMARY KEY AUTOINCREMENT, recipeId INTEGER NOT NULL, meal TEXT)').run()
+db.prepare('CREATE TABLE IF NOT EXISTS groceryList (id INTEGER PRIMARY KEY AUTOINCREMENT, ingredient TEXT, recipeId INTEGER)').run()
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
