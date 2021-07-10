@@ -33,6 +33,7 @@ class FilterBox extends React.Component {
 
         this.updateMeals = this.updateMeals.bind(this)
         this.addIngredient = this.addIngredient.bind(this)
+        this.filterOnEnter = this.filterOnEnter.bind(this)
 
         this.lastIngredientRef = React.createRef()
     }
@@ -61,6 +62,12 @@ class FilterBox extends React.Component {
             this.lastIngredientRef.current.focus()
 
             this.setState({focusLastIngredient: false})
+        }
+    }
+
+    filterOnEnter(event) {
+        if (event.key === 'Enter') {
+            this.props.setFilter(this.state)
         }
     }
 
@@ -130,6 +137,7 @@ class FilterBox extends React.Component {
                             placeholder='Name Filter...'
                             value={this.state.inputName}
                             onChange={(event) => this.setState({inputName: event.target.value})}
+                            onKeyDown={this.filterOnEnter}
                         />
                     </div>
                     <div className='filter-box-text-wrapper'>
@@ -143,6 +151,7 @@ class FilterBox extends React.Component {
                             placeholder='Protein Filter...'
                             value={this.state.inputProteinText}
                             onChange={(event) => this.setState({inputProtein: event.target.value, inputProteinText: event.target.value})}
+                            onKeyDown={this.filterOnEnter}
                         />
                     </div>
                 </div>
@@ -155,22 +164,24 @@ class FilterBox extends React.Component {
                     </select>
                     <div className='filter-box-time-wrapper'>
                         <input id='filter-box-hours'
-                                type='number'
-                                min='0'
-                                value={this.state.inputHours}
-                                onChange={event => this.setState({inputHours: event.target.value})}
-                                onBlur={event => this.setState({inputHours: Math.max(event.target.value, 0)})}
+                            type='number'
+                            min='0'
+                            value={this.state.inputHours}
+                            onChange={event => this.setState({inputHours: event.target.value})}
+                            onBlur={event => this.setState({inputHours: Math.max(event.target.value, 0)})}
+                            onKeyDown={this.filterOnEnter}
                         />
                         <label htmlFor='filter-box-hours'>Hours</label>
                     </div>
                     <div className='filter-box-time-wrapper'>
                         <input id='filter-box-minutes'
-                                type='number'
-                                min='0'
-                                max='59'
-                                value={this.state.inputMinutes}
-                                onChange={event => this.setState({inputMinutes: event.target.value})}
-                                onBlur={event => this.setState({inputMinutes: clamp(0, event.target.value, 59)})}
+                            type='number'
+                            min='0'
+                            max='59'
+                            value={this.state.inputMinutes}
+                            onChange={event => this.setState({inputMinutes: event.target.value})}
+                            onBlur={event => this.setState({inputMinutes: clamp(0, event.target.value, 59)})}
+                            onKeyDown={this.filterOnEnter}
                         />
                         <label htmlFor='filter-box-minutes'>Minutes</label>
                     </div>
