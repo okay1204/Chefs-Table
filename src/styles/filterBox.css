@@ -123,6 +123,7 @@
     justify-content: center;
     flex-wrap: wrap;
     margin-top: 0;
+    position: relative;
 }
 
 .filter-box-meal-wrapper {
@@ -244,7 +245,7 @@
 }
 
 .filter-box-submit-cancel:hover {
-    opacity: 0.7;
+    opacity: 0.9;
 }
 
 .filter-box-submit-filter {

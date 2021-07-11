@@ -142,6 +142,7 @@ input[type="checkbox"]:checked::after {
 .clear-all-prompt-background {
     background-color: rgba(0, 0, 0, 0.3);
     position: fixed;
+    z-index: 20;
     top: 0;
     left: 0;
     width: 100vw;
@@ -154,11 +155,11 @@ input[type="checkbox"]:checked::after {
 
 .clear-all-prompt {
     position: fixed;
+    z-index: 10;
     top: 35%;
     left: 0;
     right: 0;
     background-color: var(--primary-background);
-    z-index: 1;
     border: 2px var(--primary-bright) solid;
     padding: 20px;
     width: fit-content;
