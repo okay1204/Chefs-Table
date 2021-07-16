@@ -456,3 +456,14 @@ ipcMain.handle('recipes:webscrape', async (event, url) => {
         }
     }
 })
+
+// Grocery List
+
+ipcMain.handle('groceryList:add', async (event, ingredient, recipeId) => {
+    db.prepare('INSERT INTO groceryList (ingredient, recipeId) VALUES (?, ?)').run(ingredient, recipeId)
+})
+
+
+ipcMain.handle('groceryList:remove', async (event, ingredientIdToRemove) => {
+    db.prepare('DELETE FROM groceryList WHERE id = ?').run(ingredientIdToRemove)
+})

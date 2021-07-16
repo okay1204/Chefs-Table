@@ -132,17 +132,56 @@
     width: 50%;
 }
 
+.recipe-box-grocery-animation-wrapper {
+    position: relative;
+    left: -40px;
+    bottom: 10px;
+}
+
+.recipe-box-grocery-animation {
+    position: absolute;
+    padding: 7px;
+    width: fit-content;
+    border-radius: 10px;
+    display: inline-block;
+    font-size: 25px;
+    color: var(--primary-dark);
+    animation: fadeOutUp ease 1000ms;
+}
+
+.recipe-box-add-grocery-list-all {
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.recipe-box-add-grocery-list-all:hover {
+    transform: scale(1.1);
+}
+
+.recipe-box-add-grocery-list-all img {
+    width: 35px;
+}
+
+.recipe-box-add-grocery-list-all span {
+    color: var(--primary-bright);
+    font-size: 30px;
+    font-family: 'Work Sans', sans-serif;
+}
+
 .recipe-box-ingredients-list {
     width: 60%;
     margin: 20px auto;
+
+    
 }
 
-.recipe-box-ingredients-list div {
+.recipe-box-ingredients-list > div {
     display: flex;
     margin: 20px 0;
     align-items: center;
 }
-
+    
 .recipe-box-ingredients-list input {
     width: 25px;
     flex-shrink: 0;
@@ -151,6 +190,43 @@
 .recipe-box-ingredients-list label {
     cursor: pointer;
     text-align: left;
+}
+
+.recipe-box-ingredients-list button {
+    position: relative;
+}
+
+.recipe-box-ingredients-list img {
+    position: absolute;
+    bottom: -19px;
+    width: 35px;
+    display: none;
+    animation: fadeIn ease 150ms;
+}
+
+.recipe-box-ingredients-list img:hover {
+    transform: scale(1.1);
+}
+
+.recipe-box-ingredients-list div:hover img {
+    display: block;
+}
+
+.recipe-box-ingredients-list button:active {
+    transform: scale(0.9);
+}
+
+.recipe-box-ingredient-grocery-animation-wrapper {
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+.recipe-box-ingredient-grocery-animation {
+    animation: fadeOutUp ease 1000ms;
+    position: absolute;
+    left: -20px;
+    bottom: -5px;
 }
 
 .recipe-box-instructions {

@@ -144,7 +144,7 @@ class App extends React.Component {
         return (
             <div className='App'>
 
-                <ReactTooltip delayShow={1000} effect='solid'/>
+                <ReactTooltip id='react-tooltip' delayShow={500} effect='solid'/>
 
                 <div className='Header'>
                     <div className='header-buttons-wrapper'>

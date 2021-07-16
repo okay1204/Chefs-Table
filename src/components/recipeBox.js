@@ -7,6 +7,8 @@ import OutsideAnchor from '../components/outSideAnchor.js'
 import CloseBlack from '../images/closeBlack.png'
 import LoadingWheel from '../images/loadingWheel.gif'
 import EditBlack from '../images/editBlack.png'
+import AddToListEmerald from '../images/addToListEmerald.png'
+import ReactTooltip from 'react-tooltip'
 
 const { ipcRenderer } = window.require('electron')
 
@@ -20,7 +22,9 @@ class RecipeBox extends React.Component {
             closeAnimating: false,
             recipe: null,
             rawImage: null,
-            loading: true
+            loading: true,
+            groceryAnimation: false,
+            ingredientAnimationIds: []
         }
     }
 
@@ -38,6 +42,10 @@ class RecipeBox extends React.Component {
         })
     }
     
+    componentDidUpdate() {
+        ReactTooltip.rebuild()
+    }
+    
     render() {
 
         let ingredients
@@ -47,13 +55,35 @@ class RecipeBox extends React.Component {
         if (!this.state.loading) {
 
             let ingredientIdCount = 0
-            ingredients = this.state.recipe.ingredients.map(step => {
+
+            ingredients = this.state.recipe.ingredients.map(name => {
                 const ingredientId = ingredientIdCount++
                 const checkboxClassname = 'recipe-box-ingredient-checkbox-' + ingredientId
+
                 return (
                     <div key={ingredientId}>
                         <input type='checkbox' id={checkboxClassname}/>
-                        <label htmlFor={checkboxClassname}>{step}</label>
+                        <label htmlFor={checkboxClassname}>{name}</label>
+                        <button onClick={() => {
+                            if (!this.state.ingredientAnimationIds.includes(ingredientId)) {
+                                this.setState({ingredientAnimationIds: this.state.ingredientAnimationIds.concat(ingredientId)})
+                                ipcRenderer.invoke('groceryList:add', name, this.state.recipe.id)
+                            }
+                        }}>
+                            <img src={AddToListEmerald} alt='Add ingredient to grocery list' data-tip='Add ingredient to grocery list' data-for='react-tooltip' data-place='right'/>
+                        </button>
+
+                        {/* Added hovering effect for add individual ingredients button */}
+                        {
+                            this.state.ingredientAnimationIds.includes(ingredientId) &&
+                            <div className='recipe-box-ingredient-grocery-animation-wrapper'>
+                                <span className='recipe-box-ingredient-grocery-animation'
+                                    onAnimationEnd={() => this.setState({ingredientAnimationIds: [...this.state.ingredientAnimationIds.splice(ingredientId, 1)]})}
+                                >
+                                    Added
+                                </span>
+                            </div>
+                        }
                     </div>
                 )
             })
@@ -160,6 +190,28 @@ class RecipeBox extends React.Component {
                                 <hr />
 
                                 <h3>Ingredients</h3>
+                                
+                                {/* Added hovering effect for add all ingredients button */}
+                                {this.state.groceryAnimation && 
+                                    <div className='recipe-box-grocery-animation-wrapper'>
+                                        <span className='recipe-box-grocery-animation' onAnimationEnd={() => this.setState({groceryAnimation: false})}>Added</span>
+                                    </div>
+                                }
+                                <button
+                                    data-tip='Add all ingredients to grocery list'
+                                    data-for='react-tooltip'
+                                    data-place='right'
+                                    className='recipe-box-add-grocery-list-all'
+                                    onClick={() => {
+                                        if (!this.state.groceryAnimation) {
+                                            this.state.recipe.ingredients.forEach(ingredient => ipcRenderer.invoke('groceryList:add', ingredient, this.state.recipe.id));
+                                            this.setState({groceryAnimation: true})
+                                        }
+                                    }}
+                                >
+                                    <img src={AddToListEmerald} alt='Add to grocery list'/><span>All</span>
+                                </button>
+
                                 <div className='recipe-box-ingredients-list'>
                                     {this.state.recipe.ingredients.length > 0 ?
                                         ingredients
