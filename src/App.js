@@ -8,6 +8,7 @@ import CreateBox from './components/createBox.js'
 import FilterBox from './components/filterBox.js'
 import ClickOutside from './components/clickOutside.js'
 import ReactTooltip from 'react-tooltip'
+import GroceryList from './components/groceryList.js'
 
 import AddCircleBlack from './images/addCircleBlack.png'
 import LeftEmerald from './images/leftEmerald.png'
@@ -38,26 +39,11 @@ class App extends React.Component {
             createBox: false,
             animateRecipePreviews: true,
             clearAllPrompt: false,
-            devToolsCodeStep : 0
+            groceryList: false
         }
-
-        this.devToolsCode = [
-            'ArrowUp',
-            'ArrowUp',
-            'ArrowDown',
-            'ArrowDown',
-            'ArrowLeft',
-            'ArrowRight',
-            'ArrowLeft',
-            'ArrowRight',
-            'b',
-            'a',
-            'Enter'
-        ]
         
         this.ipcRenderer = ipcRenderer
-        
-        this.secretDevTools = this.secretDevTools.bind(this)
+
         this.setRecipes = this.setRecipes.bind(this)
         this.refreshRecipes = this.refreshRecipes.bind(this)
         this.setRecipePage = this.setRecipePage.bind(this)
@@ -68,28 +54,6 @@ class App extends React.Component {
     
     componentDidMount() {
         this.refreshRecipes()
-
-        document.addEventListener('keydown', this.secretDevTools)
-    }
-    
-    componentWillUnmount() {
-        document.removeEventListener('keydown', this.secretDevTools)
-    }
-
-    secretDevTools(event) {
-        
-        if (event.key === this.devToolsCode[this.state.devToolsCodeStep]) {
-            this.setState({devToolsCodeStep: this.state.devToolsCodeStep + 1}, () => {
-                if (this.state.devToolsCodeStep === this.devToolsCode.length) {
-                    this.ipcRenderer.invoke('main:openDevTools')
-                    this.setState({devToolsCodeStep: 0})
-                }
-            })
-        } else if (event.key === this.devToolsCode[0]) {
-            this.setState({devToolsCodeStep: 1})
-        } else {
-            this.setState({devToolsCodeStep: 0})
-        }
     }
 
     setRecipes(recipes) {
@@ -143,7 +107,7 @@ class App extends React.Component {
         
         return (
             <div className='App'>
-
+                
                 <ReactTooltip id='react-tooltip' delayShow={500} effect='solid'/>
 
                 <div className='Header'>
@@ -157,7 +121,9 @@ class App extends React.Component {
                             </button>
                         </div>
                         <div className='grocery-list-button-wrapper'>
-                            <button data-tip='Grocery List'>
+                            <button data-tip='Grocery List' onClick={() => {
+                                this.setState({groceryList: true})
+                            }}>
                                 <img src={GroceryListEmerald} alt='Grocery List' />
                             </button>
                         </div>
@@ -291,7 +257,11 @@ class App extends React.Component {
                     }
 
                     {
-                        this.state.editBox && <CreateBox initialValue={this.state.editBox} unmount={() => this.setState({editBox: null})} openRecipeBox={(recipeBoxId) => this.setState({editBox: recipeBoxId})} refreshRecipes={this.refreshRecipes}/>
+                        this.state.editBox && <CreateBox initialValue={this.state.editBox} unmount={() => this.setState({editBox: null})} openRecipeBox={recipeBoxId => this.setState({recipeBoxId})} refreshRecipes={this.refreshRecipes}/>
+                    }
+
+                    {
+                        this.state.groceryList && <GroceryList unmount={() => this.setState({groceryList: false})} />
                     }
                     
                 </div>

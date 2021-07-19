@@ -2,8 +2,8 @@ import '../styles/createBox.css'
 import React from 'react'
 import OutsideAnchor from './outSideAnchor.js'
 import { capitalize, MEALS, clamp } from '../utils.js'
+import BoxWindow from './boxWindow.js'
 
-import CloseBlack from '../images/closeBlack.png'
 import LoadingWheel from '../images/loadingWheel.gif'
 import DeleteIcon from '../images/delete.png'
 import CloseRed from '../images/closeRed.png'
@@ -22,8 +22,6 @@ class CreateBox extends React.Component {
         this.meals.forEach((meal) => mealObj[meal] = false)
         
         this.state = {
-            openAnimating: true,
-            closeAnimating: false,
             refreshRecipes: false,
             edit: null,
             urlError: null,
@@ -58,16 +56,8 @@ class CreateBox extends React.Component {
             this.props.openRecipeBox(this.state.edit)
         }
     }
-
-
-    // set body overflow to prevent scrolling outside of the component
-    componentWillUnmount() {
-        document.body.style.overflow = 'unset'
-    }
     
     componentDidMount() {
-        document.body.style.overflow = 'hidden'
-
         const initialValue = this.props.initialValue
 
         if (initialValue) {
@@ -111,13 +101,18 @@ class CreateBox extends React.Component {
     }
 
     componentDidUpdate() {
-
         // for focusing to last ingredient if enter was pressed
         if (this.state.focusLastIngredient) {
             let lastInput = this.lastIngredientRef
             lastInput.current.focus()
 
             this.setState({focusLastIngredient: false})
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.state.refreshRecipes) {
+            this.props.refreshRecipes()
         }
     }
     
@@ -276,6 +271,8 @@ class CreateBox extends React.Component {
                 closeAnimating: true,
                 refreshRecipes: true
             })
+
+            this.props.refreshRecipes()
         } else {
 
             ipcRenderer.invoke('recipes:edit', {
@@ -291,9 +288,9 @@ class CreateBox extends React.Component {
                 totalMinutes,
                 servings
             }).then(this.openRecipeBox)
-
-            this.props.refreshRecipes()
         }
+        
+        this.props.unmount()
     }
 
     render() {
@@ -336,230 +333,215 @@ class CreateBox extends React.Component {
         }
 
         return (
-            <div className='create-box-wrapper'>
+
+            <BoxWindow
+                className='create-box'
+                unmount={this.props.unmount}
+                secondaryButton={!this.state.edit ? null : {
+                    img: BackBlack,
+                    function: this.openRecipeBox
+                }}
+            >
+
+                {this.state.edit && <span className='create-box-id'>ID: {this.state.edit}</span>}
+                <h1 style={this.state.edit ? {marginBottom: '0px'} : {}}>{this.state.edit ? 'Edit' : 'Add'} Recipe</h1>
+                {this.state.edit && <button className='create-box-delete-recipe' onClick={() => this.setState({deletePrompt: true})}>Delete Recipe</button>}
+
                 {
-                    !this.state.closeAnimating && 
-                    <div className='create-box-background'><wbr /></div>
+                    this.state.deletePrompt &&
+                    <div className='create-box-delete-prompt-background'>
+                        <div className='create-box-delete-prompt'>
+                            <h3>Delete {this.state.inputName ? this.state.inputName : 'recipe'}?</h3>
+                            <button onClick={() => this.setState({deletePrompt: false})}>Cancel</button> <button className='create-box-delete-button' onClick={() => {
+                                if (this.state.submitLoading) return
+                                this.setState({submitLoading: true})
+
+                                ipcRenderer.invoke('recipes:remove', this.state.edit)
+                                .then(() => {
+                                    this.props.refreshRecipes()
+                                    this.props.unmount()
+                                })
+                            }}>Delete</button>
+                        </div>
+                    </div>
                 }
 
-                <div
-                    className={`create-box ${this.state.closeAnimating ? 'create-box-animate-out' : ''}`}
-                    style={this.state.deletePrompt ? {overflow: 'hidden'} : {overflow: 'scroll'}}
-                    onAnimationEnd={() => {
-                        if (this.state.closeAnimating) {
-                            if (this.state.refreshRecipes) {
-                                this.props.refreshRecipes()
-                            }
-
-                            this.props.unmount()
+                <div className='create-box-url-input-wrapper'>
+                    <label htmlFor='url'>URL</label>
+                    <input className='create-box-url-input' type='text' id='url' name='url' placeholder='Paste URL... (optional)' defaultValue={this.state.url} onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                            this.handleUrlInput(event.target.value)
                         } else {
-                            this.setState({ openAnimating: false })
+                            this.setState({urlError: null})
                         }
-                    }
-                }>
 
-                    {!this.state.openAnimating && this.state.edit && <img className='create-box-back' src={BackBlack} alt='back' onClick={this.openRecipeBox}/>}
-                    {!this.state.openAnimating && <img className='create-box-close' src={CloseBlack} alt='close' onClick={() => this.setState({closeAnimating: true})}/>}
-                    {this.state.edit && <span className='create-box-id'>ID: {this.state.edit}</span>}
-                    <h1 style={this.state.edit ? {marginBottom: '0px'} : {}}>{this.state.edit ? 'Edit' : 'Add'} Recipe</h1>
-                    {this.state.edit && <button className='create-box-delete-recipe' onClick={() => this.setState({deletePrompt: true})}>Delete Recipe</button>}
+                    }}
+                    onChange={(event) => {
+                        this.setState({url: event.target.value})
+                    }}/>
+                    {this.state.urlLoading && <img className='create-box-url-loading-wheel' src={LoadingWheel} alt='loading'/>}
+                    <button className='create-box-autofill-button' onClick={() => this.handleUrlInput(this.state.url)}>Autofill</button>
+                </div>
 
-                    {
-                        this.state.deletePrompt &&
-                        <div className='create-box-delete-prompt-background'>
-                            <div className='create-box-delete-prompt'>
-                                <h3>Delete {this.state.inputName ? this.state.inputName : 'recipe'}?</h3>
-                                <button onClick={() => this.setState({deletePrompt: false})}>Cancel</button> <button className='create-box-delete-button' onClick={() => {
-                                    if (this.state.submitLoading) return
-                                    this.setState({submitLoading: true})
+                {this.state.urlError && <span className='create-box-url-error'>{this.state.urlError}</span>}
 
-                                    ipcRenderer.invoke('recipes:remove', this.state.edit)
-                                    .then(() => {
-                                        this.props.refreshRecipes()
-                                        this.props.unmount()
-                                    })
-                                }}>Delete</button>
-                            </div>
-                        </div>
-                    }
-
-                    <div className='create-box-url-input-wrapper'>
-                        <label htmlFor='url'>URL</label>
-                        <input className='create-box-url-input' type='text' id='url' name='url' placeholder='Paste URL... (optional)' defaultValue={this.state.url} onKeyDown={(event) => {
-                            if (event.key === 'Enter') {
-                                this.handleUrlInput(event.target.value)
-                            } else {
-                                this.setState({urlError: null})
-                            }
-
-                        }}
-                        onChange={(event) => {
-                            this.setState({url: event.target.value})
-                        }}/>
-                        {this.state.urlLoading && <img className='create-box-url-loading-wheel' src={LoadingWheel} alt='loading'/>}
-                        <button className='create-box-autofill-button' onClick={() => this.handleUrlInput(this.state.url)}>Autofill</button>
-                    </div>
-
-                    {this.state.urlError && <span className='create-box-url-error'>{this.state.urlError}</span>}
-
-                    <span className='create-box-supported-websites-button' onClick={() => this.setState({websiteList: !this.state.websiteList})}>{this.state.websiteList ? 'Hide' : 'See list of supported websites'}</span>
-                    <ul className='create-box-supported-websites-list'>
-                        {   
-                            this.state.websiteList &&
-                            ['cooking.nytimes.com', 'www.allrecipes.com']
-                            .map((website) => {
-                                const domain = 'https://' + website
-
-                                return (
-                                    <OutsideAnchor
-                                        key={website}
-                                        href={domain}
-                                    >
-                                        {website}
-                                    </OutsideAnchor>
-                                )
-                            })
-                        }
-                    </ul>
-
-                    <hr />
-
-                    <h3>Image</h3>
-                    <div className='create-box-image-select'>
-                        <button onClick={() => {
-                            ipcRenderer.invoke('main:readImage')
-                            .then(data => {
-                                if (data) {
-                                    this.setState({
-                                        image: {
-                                            type: 'binary',
-                                            data
-                                        }
-                                    })
-                                }
-                            })
-                        }}>Browse your files</button>
-
-                        <span>or</span>
-
-                        <div className='create-box-paste-image-url-wrapper'>
-                            <input type='text' placeholder='Image URL..' value={this.state.inputImage} onChange={(event) => {              
-                                this.setState({inputImage: event.target.value})
-                            }} onKeyDown={(event) => {
-                                if (event.key === 'Enter') {
-                                    this.getImage(event.target.value)
-                                } else {
-                                    this.setState({imageError: null})
-                                }
-                            }}/>
-
-                            {this.state.imageLoading && <img className='create-box-image-loading-wheel' src={LoadingWheel} alt='loading'/>}
-
-                            <button onClick={() => this.getImage(this.state.inputImage)}>Grab Image</button>
-                        </div>
-                    </div>
-                    {this.state.imageError && <span className='create-box-image-error'>{this.state.imageError}</span>}
-
+                <span className='create-box-supported-websites-button' onClick={() => this.setState({websiteList: !this.state.websiteList})}>{this.state.websiteList ? 'Hide' : 'See list of supported websites'}</span>
+                <ul className='create-box-supported-websites-list'>
                     {   
-                        this.state.image.type &&
-                        <div className='create-box-image-wrapper'>
-                            <div className='create-box-image-delete-wrapper'>
-                                {/* eslint-disable-next-line */}
-                                <img src={CloseRed} alt='Delete recipe image' onClick={() => this.setState({image: {}})}/>
-                            </div>
-                            <img className='create-box-image'
-                                src={
-                                    this.state.image.type === 'url' ?
-                                    this.state.image.data
-                                    : // decode image from binary
-                                    URL.createObjectURL(new Blob([this.state.image.data]))
-                                }
-                            alt='' />
-                        </div>
+                        this.state.websiteList &&
+                        ['cooking.nytimes.com', 'www.allrecipes.com']
+                        .map((website) => {
+                            const domain = 'https://' + website
+
+                            return (
+                                <OutsideAnchor
+                                    key={website}
+                                    href={domain}
+                                >
+                                    {website}
+                                </OutsideAnchor>
+                            )
+                        })
                     }
+                </ul>
 
-                    <div className='create-box-input-grid'>
-                        <label htmlFor='create-box-name'>Name</label>
-                        <input type='text' id='create-box-name' name='name' placeholder='Recipe Name...' value={this.state.inputName} onChange={(event) => {
-                            this.setState({inputName: event.target.value})
+                <hr />
+
+                <h3>Image</h3>
+                <div className='create-box-image-select'>
+                    <button onClick={() => {
+                        ipcRenderer.invoke('main:readImage')
+                        .then(data => {
+                            if (data) {
+                                this.setState({
+                                    image: {
+                                        type: 'binary',
+                                        data
+                                    }
+                                })
+                            }
+                        })
+                    }}>Browse your files</button>
+
+                    <span>or</span>
+
+                    <div className='create-box-paste-image-url-wrapper'>
+                        <input type='text' placeholder='Image URL..' value={this.state.inputImage} onChange={(event) => {              
+                            this.setState({inputImage: event.target.value})
+                        }} onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                                this.getImage(event.target.value)
+                            } else {
+                                this.setState({imageError: null})
+                            }
                         }}/>
 
-                        <label htmlFor='create-box-protein'>Protein</label>
-                        <input type='text' id='create-box-protein' name='protein' placeholder='Main Protein... (leave blank if none)' value={this.state.inputProtein} onChange={(event) => {
-                            this.setState({inputProtein: event.target.value})
-                        }}/>
+                        {this.state.imageLoading && <img className='create-box-image-loading-wheel' src={LoadingWheel} alt='loading'/>}
 
+                        <button onClick={() => this.getImage(this.state.inputImage)}>Grab Image</button>
                     </div>
+                </div>
+                {this.state.imageError && <span className='create-box-image-error'>{this.state.imageError}</span>}
 
-                    <div className='create-box-number-grid'>
-                        <label>Total Cooking Time</label>
-                        <div>
-                            <div className='create-box-number-input-wrapper'>
-                                <input type='number' min='0' name='cooking-time' 
-                                    value={this.state.inputHours}
-                                    onChange={event => this.setState({inputHours: event.target.value})}
-                                    onBlur={event => this.setState({inputHours: Math.max(event.target.value, 0)})}
-                                />
-                                <span> hours</span>
-                            </div>
-                            <div className='create-box-number-input-wrapper'>
-                                <input type='number' min='0' max='59' name='cooking-time'
-                                    value={this.state.inputMinutes}
-                                    onChange={event => this.setState({inputMinutes: event.target.value})}
-                                    onBlur={event => this.setState({inputMinutes: clamp(0, event.target.value, 59)})}
-                                />
-                                <span> minutes</span>
-                            </div>
+                {   
+                    this.state.image.type &&
+                    <div className='create-box-image-wrapper'>
+                        <div className='create-box-image-delete-wrapper'>
+                            {/* eslint-disable-next-line */}
+                            <img src={CloseRed} alt='Delete recipe image' onClick={() => this.setState({image: {}})}/>
                         </div>
-
-                        <label htmlFor='create-box-servings'>Servings</label>
-                        <div>
-                            <input type='number' min='0' id='create-box-servings' name='servings'
-                                value={this.state.inputServings}
-                                onChange={event => this.setState({inputServings: event.target.value})}
-                                onBlur={event => this.setState({inputServings: Math.max(event.target.value, 0)})}
-                            />
-                            <span> servings</span>
-                        </div>
+                        <img className='create-box-image'
+                            src={
+                                this.state.image.type === 'url' ?
+                                this.state.image.data
+                                : // decode image from binary
+                                URL.createObjectURL(new Blob([this.state.image.data]))
+                            }
+                        alt='' />
                     </div>
+                }
 
-                    <h3>Meal</h3>
-                    
-                    <div className='create-box-meal-wrapper'>
-                        {
-                            this.meals
-                            .map((meal) => (
-                                <div className='create-box-checkbox-wrapper' key={meal}>
-                                    <input type='checkbox' id={`create-box-${meal}`} name={meal} checked={this.state.inputMeal[meal]} onChange={(event) => {
-                                        const newMeal = this.state.inputMeal
-                                        newMeal[meal] = event.target.checked
-                                        
-                                        this.setState({inputMeal: newMeal})
-                                    }}/>
-                                    <label htmlFor={`create-box-${meal}`}>{capitalize(meal)}</label>
-                                </div>
-                            ))
-                        }
-                    </div>
+                <div className='create-box-input-grid'>
+                    <label htmlFor='create-box-name'>Name</label>
+                    <input type='text' id='create-box-name' name='name' placeholder='Recipe Name...' value={this.state.inputName} onChange={(event) => {
+                        this.setState({inputName: event.target.value})
+                    }}/>
 
-                    <h3>Instructions</h3>
-                    <textarea className='create-box-instructions' placeholder='Recipe Instructions...' value={this.state.inputInstructions} onChange={(event) => this.setState({inputInstructions: event.target.value})}/>
-
-                    <h3>Ingredients</h3>
-                    <ul className='create-box-ingredients-list'>
-                        {ingredientsHTML}
-                    </ul>
-                    
-                    <button className='create-box-add-ingredient' onClick={() => {
-                        this.addIngredient('')
-                        this.setState({focusLastIngredient: true})
-                    }}>+</button>
-                    
-                    <br />
-                    <button className='create-box-submit-recipe-button' onClick={this.submitRecipe}>{this.state.edit ? 'Edit' : 'Add'} Recipe</button>
+                    <label htmlFor='create-box-protein'>Protein</label>
+                    <input type='text' id='create-box-protein' name='protein' placeholder='Main Protein... (leave blank if none)' value={this.state.inputProtein} onChange={(event) => {
+                        this.setState({inputProtein: event.target.value})
+                    }}/>
 
                 </div>
-            </div>
+
+                <div className='create-box-number-grid'>
+                    <label>Total Cooking Time</label>
+                    <div>
+                        <div className='create-box-number-input-wrapper'>
+                            <input type='number' min='0' name='cooking-time' 
+                                value={this.state.inputHours}
+                                onChange={event => this.setState({inputHours: event.target.value})}
+                                onBlur={event => this.setState({inputHours: Math.max(event.target.value, 0)})}
+                            />
+                            <span> hours</span>
+                        </div>
+                        <div className='create-box-number-input-wrapper'>
+                            <input type='number' min='0' max='59' name='cooking-time'
+                                value={this.state.inputMinutes}
+                                onChange={event => this.setState({inputMinutes: event.target.value})}
+                                onBlur={event => this.setState({inputMinutes: clamp(0, event.target.value, 59)})}
+                            />
+                            <span> minutes</span>
+                        </div>
+                    </div>
+
+                    <label htmlFor='create-box-servings'>Servings</label>
+                    <div>
+                        <input type='number' min='0' id='create-box-servings' name='servings'
+                            value={this.state.inputServings}
+                            onChange={event => this.setState({inputServings: event.target.value})}
+                            onBlur={event => this.setState({inputServings: Math.max(event.target.value, 0)})}
+                        />
+                        <span> servings</span>
+                    </div>
+                </div>
+
+                <h3>Meal</h3>
+                
+                <div className='create-box-meal-wrapper'>
+                    {
+                        this.meals
+                        .map((meal) => (
+                            <div className='create-box-checkbox-wrapper' key={meal}>
+                                <input type='checkbox' id={`create-box-${meal}`} name={meal} checked={this.state.inputMeal[meal]} onChange={(event) => {
+                                    const newMeal = this.state.inputMeal
+                                    newMeal[meal] = event.target.checked
+                                    
+                                    this.setState({inputMeal: newMeal})
+                                }}/>
+                                <label htmlFor={`create-box-${meal}`}>{capitalize(meal)}</label>
+                            </div>
+                        ))
+                    }
+                </div>
+
+                <h3>Instructions</h3>
+                <textarea className='create-box-instructions' placeholder='Recipe Instructions...' value={this.state.inputInstructions} onChange={(event) => this.setState({inputInstructions: event.target.value})}/>
+
+                <h3>Ingredients</h3>
+                <ul className='create-box-ingredients-list'>
+                    {ingredientsHTML}
+                </ul>
+                
+                <button className='create-box-add-ingredient' onClick={() => {
+                    this.addIngredient('')
+                    this.setState({focusLastIngredient: true})
+                }}>+</button>
+                
+                <br />
+                <button className='create-box-submit-recipe-button' onClick={this.submitRecipe}>{this.state.edit ? 'Edit' : 'Add'} Recipe</button>
+            </BoxWindow>
+
         )
     }
 }

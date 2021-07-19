@@ -408,7 +408,7 @@ ipcMain.handle('recipes:edit', async (event, newRecipe) => {
     const addMeal = db.prepare('INSERT INTO meals (recipeId, meal) VALUES (?, ?)')
     newRecipe.meals.forEach(meal => addMeal.run(newRecipe.id, meal))
     
-    log.info(`Edited recipe with id ${lastInsertRowid}\n${JSON.stringify(newRecipe, null, 4)}`)
+    log.info(`Edited recipe with id ${newRecipe.id}\n${JSON.stringify(newRecipe, null, 4)}`)
     return newRecipeTemplate
 })
 
