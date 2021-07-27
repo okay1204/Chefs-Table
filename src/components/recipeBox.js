@@ -5,7 +5,6 @@ import { setRecipeImage, capitalize } from '../utils.js'
 import OutsideAnchor from '../components/outSideAnchor.js'
 import BoxWindow from './boxWindow.js'
 
-import LoadingWheel from '../images/loadingWheel.gif'
 import EditBlack from '../images/editBlack.png'
 import AddToListEmerald from '../images/addToListEmerald.png'
 import ReactTooltip from 'react-tooltip'
@@ -96,7 +95,6 @@ class RecipeBox extends React.Component {
         }
 
         return (
-
             <BoxWindow
                 unmount={this.props.unmount}
                 secondaryButton={{
@@ -128,52 +126,52 @@ class RecipeBox extends React.Component {
                         })
                     }
                 }}
+                loading={this.state.loading}
             >
-                {
-                    this.state.loading
-                    ? <div className='recipe-box-loading'><img src={LoadingWheel} alt='loading' /></div>
-                    : (
-                        <div className='recipe-box-content-wrapper'>
+                {!this.state.loading && 
+                    <div className='recipe-box-content-wrapper'>
 
-                            <h1>{this.state.recipe.name}</h1>
-
-                            {/* eslint-disable-next-line */}
-                            <div className='recipe-header'>
-                                <img className='recipe-box-image' src={this.state.recipe.image} alt=''/>
-                                <div className='recipe-info-box'>
-                                    <span>Time: {`${Math.floor(this.state.recipe.totalMinutes / 60)}h ${this.state.recipe.totalMinutes % 60}m`}</span>
-                                    <span>Servings: {this.state.recipe.servings}</span>
-                                    <span>Protein: {this.state.recipe.protein ? capitalize(this.state.recipe.protein) : 'None'}</span>
-                                </div>
+                        <h1>{this.state.recipe.name}</h1>
+                        {/* eslint-disable-next-line */}
+                        <div className='recipe-header'>
+                            <img className='recipe-box-image' src={this.state.recipe.image} alt=''/>
+                            <div className='recipe-info-box'>
+                                <span>Time: {`${Math.floor(this.state.recipe.totalMinutes / 60)}h ${this.state.recipe.totalMinutes % 60}m`}</span>
+                                <span>Servings: {this.state.recipe.servings}</span>
+                                <span>Protein: {this.state.recipe.protein ? capitalize(this.state.recipe.protein) : 'None'}</span>
                             </div>
+                        </div>
 
-                            <h3>Meals</h3>
-                            <div className='recipe-box-meals-wrapper'>
-                                {this.state.recipe.meals.length > 0 ? 
-                                this.state.recipe.meals.map(meal => (
-                                    <h5 key={meal}>{capitalize(meal)}</h5>
-                                ))
-                                : <h5>None</h5>}
+                        <h3>Meals</h3>
+                        <div className='recipe-box-meals-wrapper'>
+                            {this.state.recipe.meals.length > 0 ? 
+                            this.state.recipe.meals.map(meal => (
+                                <h5 key={meal}>{capitalize(meal)}</h5>
+                            ))
+                            : <h5>None</h5>}
+                        </div>
+
+                        <div className='recipe-box-url'>
+                            <h3>URL</h3>
+                            {this.state.recipe.url ?
+                            <OutsideAnchor href={this.state.recipe.url} className='recipe-box-url-anchor'>{this.state.recipe.url}</OutsideAnchor>
+                            :
+                            <span>None</span>}
+                        </div>
+
+                        <hr />
+
+                        <h3>Ingredients</h3>
+                        
+                        {/* Added hovering effect for add all ingredients button */}
+                        {this.state.groceryAnimation && 
+                            <div className='recipe-box-grocery-animation-wrapper'>
+                                <span className='recipe-box-grocery-animation' onAnimationEnd={() => this.setState({groceryAnimation: false})}>Added</span>
                             </div>
+                        }
 
-                            <div className='recipe-box-url'>
-                                <h3>URL</h3>
-                                {this.state.recipe.url ?
-                                <OutsideAnchor href={this.state.recipe.url} className='recipe-box-url-anchor'>{this.state.recipe.url}</OutsideAnchor>
-                                :
-                                <span>None</span>}
-                            </div>
-
-                            <hr />
-
-                            <h3>Ingredients</h3>
-                            
-                            {/* Added hovering effect for add all ingredients button */}
-                            {this.state.groceryAnimation && 
-                                <div className='recipe-box-grocery-animation-wrapper'>
-                                    <span className='recipe-box-grocery-animation' onAnimationEnd={() => this.setState({groceryAnimation: false})}>Added</span>
-                                </div>
-                            }
+                        {
+                            this.state.recipe.ingredients.length > 0 &&
                             <button
                                 data-tip='Add all ingredients to grocery list'
                                 data-for='react-tooltip'
@@ -188,25 +186,25 @@ class RecipeBox extends React.Component {
                             >
                                 <img src={AddToListEmerald} alt='Add to grocery list'/><span>All</span>
                             </button>
+                        }
 
-                            <div className='recipe-box-ingredients-list'>
-                                {this.state.recipe.ingredients.length > 0 ?
-                                    ingredients
-                                    :
-                                    'None'
-                                }
-                            </div>
-
-                            <h3>Instructions</h3>
-                            <p className='recipe-box-instructions'>
-                            {recipeInstructions[0].props.children ?
-                                recipeInstructions
+                        <div className='recipe-box-ingredients-list'>
+                            {this.state.recipe.ingredients.length > 0 ?
+                                ingredients
                                 :
-                                <span className='recipe-box-instructions-none'>None</span>
-                            }</p>
-
+                                'None'
+                            }
                         </div>
-                    )
+
+                        <h3>Instructions</h3>
+                        <p className='recipe-box-instructions'>
+                        {recipeInstructions[0].props.children ?
+                            recipeInstructions
+                            :
+                            <span className='recipe-box-instructions-none'>None</span>
+                        }</p>
+
+                    </div>
                 }
             </BoxWindow>
         )

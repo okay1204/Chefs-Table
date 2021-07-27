@@ -25,3 +25,34 @@
     overflow-y: scroll;
     overflow-x: none;
 }
+
+.grocery-list-add-input {
+    border: var(--primary-bright) solid 2px;
+    padding: 10px;
+    border-radius: 5px;
+    width: 50%;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.grocery-list-add-button {
+    margin: 10px;
+    font-size: 25px;
+    background-color: var(--primary-bright);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+.grocery-list-ingredient {
+    padding: 7px;
+    margin: 0 10%;
+    text-align: left;
+    width: 80%;
+    display: flex;
+    align-items: center;
+}
+
+.grocery-list-ingredient * {
+    cursor: pointer;
+}

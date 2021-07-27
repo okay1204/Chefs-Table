@@ -49,3 +49,15 @@
 .box-window-animate-out {
     animation: zoomOut ease 250ms;
 }
+
+.box-window-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.box-window-loading img {
+    width: 200px;
+}

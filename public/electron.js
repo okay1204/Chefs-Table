@@ -13,6 +13,15 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 log.transports.file.level = 'info';
 
+const RESOURCE_PATH = isDev
+? path.join(path.dirname(__dirname), 'dev')
+: app.getPath('userData')
+
+if (isDev) {
+    log.transports.file.resolvePath = () => path.join(RESOURCE_PATH, 'main.log')
+}
+
+
 // do not log ExtensionLoadWarning as it is an issue with the library itself
 console.error = error => !error.includes('ExtensionLoadWarning') && log.error(error)
 
@@ -88,10 +97,6 @@ app.on('activate', () => {
     }
 })
 
-const RESOURCE_PATH = isDev
-? path.join(path.dirname(__dirname), 'dev')
-: app.getPath('userData')
-
 const DATABASE_PATH = path.join(RESOURCE_PATH, 'chefs-table.db')
 const IMAGES_PATH = path.join(RESOURCE_PATH, '/images')
 fs.promises.mkdir(IMAGES_PATH, { recursive: true })
@@ -149,7 +154,7 @@ ipcMain.handle('main:isImageUrl', async (event, url) => {
     }
 })
 
-ipcMain.handle('main:readImage', async () => {
+ipcMain.handle('main:readImage', async (event) => {
     const { filePaths } = await dialog.showOpenDialog(mainWindow, {
         title: 'Choose Image',
         buttonLabel: 'Choose Image',
@@ -427,7 +432,7 @@ ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
     log.info('Removed recipe with id ' + recipeIdToRemove)
 })
 
-ipcMain.handle('recipes:clear', async () => {
+ipcMain.handle('recipes:clear', async (event) => {
     db.prepare('DELETE FROM recipes').run()
     db.prepare('DELETE FROM ingredients').run()
     db.prepare('DELETE FROM meals').run()
@@ -459,11 +464,35 @@ ipcMain.handle('recipes:webscrape', async (event, url) => {
 
 // Grocery List
 
-ipcMain.handle('groceryList:add', async (event, ingredient, recipeId) => {
-    db.prepare('INSERT INTO groceryList (ingredient, recipeId) VALUES (?, ?)').run(ingredient, recipeId)
+ipcMain.handle('groceryList:readAll', async (event) => {
+    return db.prepare('SELECT * FROM groceryList;').all()
 })
 
+ipcMain.handle('groceryList:readIngredient', async (event, ingredientId) => {
+    return db.prepare('SELECT * FROM groceryList WHERE id = ?;').get(ingredientId)
+})
+
+ipcMain.handle('groceryList:edit', async (event, ingredientId, newIngredient) => {
+    
+    const updates = Object.keys(newIngredient).map(fieldName => fieldName + ' = ?').join(', ')
+    
+    db.prepare(`UPDATE recipes SET ${updates} WHERE id = ?`).run(...Object.values(newIngredient).concat(ingredientId))
+
+    log.info(`Edited grocery list ingredient with id ${ingredientId}\n${JSON.stringify(newIngredient, null, 4)}`)
+    return newIngredient
+})
+
+ipcMain.handle('groceryList:add', async (event, ingredient, recipeId) => {
+    const { lastInsertRowid } = db.prepare('INSERT INTO groceryList (name, recipeId) VALUES (?, ?)').run(ingredient, recipeId)
+    log.info(`Added grocery list ingredient with id ${lastInsertRowid}\n${JSON.stringify({id: lastInsertRowid, ingredient, recipeId}, null, 4)}`)
+})
 
 ipcMain.handle('groceryList:remove', async (event, ingredientIdToRemove) => {
     db.prepare('DELETE FROM groceryList WHERE id = ?').run(ingredientIdToRemove)
+    log.info('Removed grocery list ingredient with id ' + ingredientIdToRemove)
+})
+
+ipcMain.handle('groceryList:clear', async (event) => {
+    db.prepare('DELETE FROM groceryList').run()
+    log.info('Cleared grocery list')
 })

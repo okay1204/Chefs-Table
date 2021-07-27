@@ -107,6 +107,10 @@ input[type="checkbox"]:checked::after {
     font-size: 30px;
 }
 
+input[type="text"] {
+    text-align: left;
+}
+
 .disabled-input {
     filter: grayscale(100%);
     pointer-events: none;

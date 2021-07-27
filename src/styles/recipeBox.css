@@ -1,15 +1,3 @@
-.recipe-box-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-.recipe-box-loading img {
-    width: 200px;
-}
-
 .recipe-box-url {
     display: flex;
     align-items: center;
