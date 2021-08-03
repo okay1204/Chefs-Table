@@ -2,6 +2,7 @@ import '../styles/groceryList.css'
 
 import React from 'react'
 import BoxWindow from './boxWindow.js'
+import ConfirmationBox from './confirmationBox.js'
 
 import DeleteIcon from '../images/delete.png'
 
@@ -16,10 +17,9 @@ class GroceryList extends React.Component {
             ingredients: {},
             recipes: {},
             newIngredient: '',
-            copyAsTextClickChange: false
+            copyAsTextClickChange: false,
+            deletePrompt: false
         }
-
-
 
         this.addIngredient = this.addIngredient.bind(this)
         this.ingredientHTML = this.ingredientHTML.bind(this)
@@ -121,7 +121,7 @@ class GroceryList extends React.Component {
         if (!this.state.loading) {
             // first rendering ingredients without a recipe
 
-            if (this.state.ingredients[-1].length > 0) {
+            if (this.state.ingredients[-1] && this.state.ingredients[-1].length > 0) {
                 ingredientsHTML.push(
                     <div className='grocery-list-recipe-category' key={-1}>
                         <h3>{this.state.recipes[-1]}</h3>
@@ -195,9 +195,27 @@ class GroceryList extends React.Component {
                             {!this.state.copyAsTextClickChange ? 'Copy as Text' : 'Copied!'}
                         </button>
                         
-                        <button className='grocery-list-clear-button'>
-                            Delete All
+                        <button className='grocery-list-clear-button' onClick={() => this.setState({deletePrompt: true})}>
+                            Clear All
                         </button>
+
+                        {
+                            this.state.deletePrompt &&
+                            <ConfirmationBox
+                                onCancel={() => null}
+                                onConfirm={() => {
+                                    ipcRenderer.invoke('groceryList:clear')
+                                    this.setState({
+                                        ingredients: {},
+                                        recipes: {}
+                                    })
+                                }}
+                                unmount={() => this.setState({deletePrompt: false})}
+                                promptText="Clear grocery list?"
+                                cancelButtonText='Cancel'
+                                confirmButtonText='Clear'
+                            />
+                        }
 
                         <div className='grocery-list-ingredients'>
                             {ingredientsHTML}

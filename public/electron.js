@@ -428,6 +428,7 @@ ipcMain.handle('recipes:remove', async (event, recipeIdToRemove) => {
     db.prepare('DELETE FROM recipes WHERE id = ?').run(recipeIdToRemove)
     db.prepare('DELETE FROM ingredients WHERE recipeId = ?').run(recipeIdToRemove)
     db.prepare('DELETE FROM meals WHERE recipeId = ?').run(recipeIdToRemove)
+    db.prepare('DELETE FROM groceryList WHERE recipeId = ?').run(recipeIdToRemove)
 
     log.info('Removed recipe with id ' + recipeIdToRemove)
 })
@@ -436,12 +437,15 @@ ipcMain.handle('recipes:clear', async (event) => {
     db.prepare('DELETE FROM recipes').run()
     db.prepare('DELETE FROM ingredients').run()
     db.prepare('DELETE FROM meals').run()
+
     fs.promises.readdir(IMAGES_PATH)
     .then(files => {
         files.forEach(file => {
             fs.promises.unlink(path.join(IMAGES_PATH, file))
         })
     })
+
+    db.prepare('DELETE FROM groceryList WHERE recipeId IS NOT NULL').run()
 
     log.info('Cleared all recipes')
 })
