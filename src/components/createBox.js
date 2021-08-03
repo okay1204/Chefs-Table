@@ -3,6 +3,7 @@ import React from 'react'
 import OutsideAnchor from './outSideAnchor.js'
 import { capitalize, MEALS, clamp } from '../utils.js'
 import BoxWindow from './boxWindow.js'
+import ConfirmationBox from './confirmationBox.js'
 
 import LoadingWheel from '../images/loadingWheel.gif'
 import DeleteIcon from '../images/delete.png'
@@ -349,21 +350,35 @@ class CreateBox extends React.Component {
 
                 {
                     this.state.deletePrompt &&
-                    <div className='create-box-delete-prompt-background'>
-                        <div className='create-box-delete-prompt'>
-                            <h3>Delete {this.state.inputName ? this.state.inputName : 'recipe'}?</h3>
-                            <button onClick={() => this.setState({deletePrompt: false})}>Cancel</button> <button className='create-box-delete-button' onClick={() => {
-                                if (this.state.submitLoading) return
-                                this.setState({submitLoading: true})
+                    // <div className='create-box-delete-prompt-background'>
+                    //     <div className='create-box-delete-prompt'>
+                    //         <h3>Delete {this.state.inputName ? this.state.inputName : 'recipe'}?</h3>
+                    //         <button onClick={() => this.setState({deletePrompt: false})}>Cancel</button> <button className='create-box-delete-button' onClick={() => {
+                    //             if (this.state.submitLoading) return
+                    //             this.setState({submitLoading: true})
 
-                                ipcRenderer.invoke('recipes:remove', this.state.edit)
-                                .then(() => {
-                                    this.props.refreshRecipes()
-                                    this.props.unmount()
-                                })
-                            }}>Delete</button>
-                        </div>
-                    </div>
+                    //             ipcRenderer.invoke('recipes:remove', this.state.edit)
+                    //             .then(() => {
+                    //                 this.props.refreshRecipes()
+                    //                 this.props.unmount()
+                    //             })
+                    //         }}>Delete</button>
+                    //     </div>
+                    // </div>
+                    <ConfirmationBox
+                        onCancel={() => true}
+                        onConfirm={() => {
+                            ipcRenderer.invoke('recipes:remove', this.state.edit)
+                            .then(() => {
+                                this.props.refreshRecipes()
+                                this.props.unmount()
+                            })
+                        }}
+                        unmount={() => this.setState({deletePrompt: false})}
+                        promptText={`Delete ${this.state.inputName ? this.state.inputName : 'recipe'}?`}
+                        cancelButtonText='Cancel'
+                        confirmButtonText='Delete'
+                    />
                 }
 
                 <div className='create-box-url-input-wrapper'>

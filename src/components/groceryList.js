@@ -170,11 +170,17 @@ class GroceryList extends React.Component {
                             let text = ''
 
                             for (const [recipeId, ingredients] of Object.entries(this.state.ingredients)) {
-                                text += this.state.recipes[recipeId] + '\n'
-                                text += '----------\n'
-
-                                ingredients.forEach(ingredient => text += ingredient.name + '\n')
-                                text += '\n\n'
+                                
+                                if (ingredients.length > 0) {
+                                    text += this.state.recipes[recipeId] + '\n'
+                                    text += '----------\n'
+    
+                                    for (let i = 0; i < ingredients.length; i++) {
+                                        text += ingredients[i].name + '\n'
+                                    }
+    
+                                    text += '\n\n'
+                                }
                             }
 
                             text = text.trim()

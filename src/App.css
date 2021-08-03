@@ -143,59 +143,6 @@ input[type="text"] {
     background-color: #c4c4c4;
 }
 
-.clear-all-prompt-background {
-    background-color: rgba(0, 0, 0, 0.3);
-    position: fixed;
-    z-index: 20;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-}
-
-.clear-all-prompt h3 {
-    color: var(--red)
-}
-
-.clear-all-prompt {
-    position: fixed;
-    z-index: 10;
-    top: 35%;
-    left: 0;
-    right: 0;
-    background-color: var(--primary-background);
-    border: 2px var(--primary-bright) solid;
-    padding: 20px;
-    width: fit-content;
-    height: fit-content;
-    margin: 0 auto;
-    border-radius: 10px;
-    animation: zoomIn 200ms ease;
-}
-
-.clear-prompt-cancel-button {
-    background-color: var(--primary-bright);
-    color: white;
-    border-radius: 5px;
-    font-size: 15px;
-}
-
-.clear-prompt-confirm-button {
-    background-color: var(--red);
-    color: white;
-    border-radius: 5px;
-    font-size: 15px;
-}
-
-.clear-all-prompt button {
-    margin: 0 30px;
-    padding: 10px 20px;
-}
-
-.clear-all-prompt button:hover {
-    opacity: 0.7;
-}
-
 .add-recipe-button {
     transition: all ease-out 100ms;
 }
@@ -262,6 +209,7 @@ input[type="text"] {
 .mini-create-box-url-input {
     margin: 10px 0;
     font-size: 15px;
+    text-align: center !important;
 }
 
 .mini-create-box-expand {

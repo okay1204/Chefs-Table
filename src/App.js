@@ -9,6 +9,7 @@ import FilterBox from './components/filterBox.js'
 import ClickOutside from './components/clickOutside.js'
 import ReactTooltip from 'react-tooltip'
 import GroceryList from './components/groceryList.js'
+import ConfirmationBox from './components/confirmationBox.js'
 
 import AddCircleBlack from './images/addCircleBlack.png'
 import LeftEmerald from './images/leftEmerald.png'
@@ -130,7 +131,6 @@ class App extends React.Component {
                         <div className='recipe-manage-buttons-wrapper'>
                             <button className='clear-all-button' onClick={() => {
                                 this.setState({clearAllPrompt: true})
-                                document.body.style.overflow = 'hidden'
                             }}>Clear all recipes</button>
                             <button className='add-recipe-button' data-tip='Add Recipe' onClick={() => {
 
@@ -186,21 +186,15 @@ class App extends React.Component {
                     {/* delete prompt */}
                     {
                         this.state.clearAllPrompt &&
-                        <div className='clear-all-prompt-background'>
-                            <div className='clear-all-prompt'>
-                                <h2>Clear all recipes?</h2>
-                                <h3>Warning: This action cannot be undone</h3>
-                                <button className='clear-prompt-cancel-button' onClick={() => {
-                                    this.setState({clearAllPrompt: false})
-                                    document.body.style.overflow = 'unset'
-                                }}>Cancel</button>
-                                <button className='clear-prompt-confirm-button' onClick={() => {
-                                    this.setState({clearAllPrompt: false})
-                                    document.body.style.overflow = 'unset'
-                                    this.ipcRenderer.invoke('recipes:clear').then(this.refreshRecipes)
-                                }}>Clear</button>
-                            </div>
-                        </div>
+                        <ConfirmationBox
+                            onCancel={() => null}
+                            onConfirm={() => this.ipcRenderer.invoke('recipes:clear').then(this.refreshRecipes)}
+                            unmount={() => this.setState({clearAllPrompt: false})}
+                            promptText='Clear all recipes?'
+                            warningText='Warning: This action cannot be undone'
+                            cancelButtonText='Cancel'
+                            confirmButtonText='Clear'
+                        />
                     }
 
                     {/* filter */}

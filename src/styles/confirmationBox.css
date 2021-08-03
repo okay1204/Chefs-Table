@@ -1,0 +1,50 @@
+.confirmation-box-background {
+    background-color: rgba(0, 0, 0, 0.3);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 20;
+}
+
+.confirmation-box {
+    position: fixed;
+    top: 35%;
+    left: 0;
+    right: 0;
+    background-color: var(--primary-background);
+    z-index: 20;
+    border: 2px var(--primary-bright) solid;
+    padding: 20px;
+    width: fit-content;
+    height: fit-content;
+    margin: 0 auto;
+    border-radius: 10px;
+    animation: zoomIn 200ms ease;
+}
+
+.confirmation-box button {
+    margin: 0 30px;
+    padding: 10px 20px;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+.confirmation-box button:hover {
+    opacity: 0.7;
+}
+
+.confirmation-box-cancel {
+    background-color: var(--primary-bright);
+}
+
+.confirmation-box-confirm {
+    background-color: var(--red) !important;
+}
+
+.confirmation-box-warning-text {
+    color: var(--red);
+}

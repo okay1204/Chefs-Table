@@ -482,9 +482,11 @@ ipcMain.handle('groceryList:edit', async (event, ingredientId, newIngredient) =>
     return newIngredient
 })
 
-ipcMain.handle('groceryList:add', async (event, ingredient, recipeId) => {
-    const { lastInsertRowid } = db.prepare('INSERT INTO groceryList (name, recipeId) VALUES (?, ?)').run(ingredient, recipeId)
-    log.info(`Added grocery list ingredient with id ${lastInsertRowid}\n${JSON.stringify({id: lastInsertRowid, ingredient, recipeId}, null, 4)}`)
+ipcMain.handle('groceryList:add', async (event, name, recipeId) => {
+    const { lastInsertRowid } = db.prepare('INSERT INTO groceryList (name, recipeId) VALUES (?, ?)').run(name, recipeId)
+    log.info(`Added grocery list ingredient with id ${lastInsertRowid}\n${JSON.stringify({id: lastInsertRowid, name, recipeId}, null, 4)}`)
+
+    return {id: lastInsertRowid, name, recipeId}
 })
 
 ipcMain.handle('groceryList:remove', async (event, ingredientIdToRemove) => {

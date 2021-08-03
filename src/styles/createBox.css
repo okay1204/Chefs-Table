@@ -68,11 +68,6 @@
     animation: zoomIn 200ms ease;
 }
 
-.create-box .create-box-delete-button {
-    background-color: var(--red);
-    color: white;
-}
-
 .create-box .create-box-delete-prompt button {
     margin: 0 30px;
     padding: 10px 20px;
