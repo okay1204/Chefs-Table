@@ -42,37 +42,6 @@
     margin-bottom: 10px;
 }
 
-.create-box-delete-prompt-background {
-    background-color: rgba(0, 0, 0, 0.3);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 20;
-}
-
-.create-box-delete-prompt {
-    position: fixed;
-    top: 35%;
-    left: 0;
-    right: 0;
-    background-color: var(--primary-background);
-    z-index: 20;
-    border: 2px var(--primary-bright) solid;
-    padding: 20px;
-    width: fit-content;
-    height: fit-content;
-    margin: 0 auto;
-    border-radius: 10px;
-    animation: zoomIn 200ms ease;
-}
-
-.create-box .create-box-delete-prompt button {
-    margin: 0 30px;
-    padding: 10px 20px;
-}
-
 .create-box .create-box-delete-recipe:hover {
     transform: scale(1.1);
     opacity: 0.9;
