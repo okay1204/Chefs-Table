@@ -1,7 +1,9 @@
+import '../styles/groceryList.css'
+
 import React from 'react'
 import BoxWindow from './boxWindow.js'
 
-import '../styles/groceryList.css'
+import DeleteIcon from '../images/delete.png'
 
 const { ipcRenderer } = window.require('electron')
 
@@ -13,12 +15,14 @@ class GroceryList extends React.Component {
             loading: true,
             ingredients: {},
             recipes: {},
-            newIngredient: ''
+            newIngredient: '',
+            copyAsTextClickChange: false
         }
 
 
 
         this.addIngredient = this.addIngredient.bind(this)
+        this.ingredientHTML = this.ingredientHTML.bind(this)
     }
 
     componentDidMount() {
@@ -34,12 +38,11 @@ class GroceryList extends React.Component {
             ingredients.forEach(ingredient => {
                 let { recipeId } = ingredient
 
+                if (!recipeId) {
+                    recipeId = -1
+                }
+
                 if (!(recipeId in sortedIngredients)) {
-
-                    if (!recipeId) {
-                        recipeId = -1
-                    }
-
                     sortedIngredients[recipeId] = []
                 }
 
@@ -68,10 +71,47 @@ class GroceryList extends React.Component {
     addIngredient(name) {
         const { ingredients } = this.state
 
-        // TODO make request to main process to create an actual ingredient and return with the recipe
-        ingredients[-1].push({name, recipeId: -69})
+        ipcRenderer.invoke('groceryList:add', name, null)
+        .then(({name, id}) => {
+            ingredients[-1].push({name, id})
+    
+            this.setState({ingredients})
+        })
+    }
 
-        this.setState({ingredients})
+    ingredientHTML(recipeId, ingredient) {
+        return (
+            <div className='grocery-list-ingredient' key={ingredient.id}>
+                <input id={`grocery-list-ingredient-${ingredient.id}`} type='checkbox' />
+                <label htmlFor={`grocery-list-ingredient-${ingredient.id}`}>{ingredient.name}</label>
+                <div className='grocery-list-ingredient-delete'>
+                    <img src={DeleteIcon} alt='delete ingredient' onClick={() => {
+                        const { ingredients } = this.state
+                        const recipeIngredients = ingredients[recipeId]
+
+                        // find index of the ingredient id to delete
+                        let removeIndex
+                        for (let i = 0; i < recipeIngredients.length; i++) {
+                            if (recipeIngredients[i].id === ingredient.id) {
+                                removeIndex = i
+                                break
+                            }
+                        }
+
+                        // delete ingredient
+                        recipeIngredients.splice(removeIndex, 1)
+                        ipcRenderer.invoke('groceryList:remove', ingredient.id)
+
+                        // if the ingredients under that recipe are all empty, get rid of the recipe entirely
+                        if (recipeIngredients.length === 0) {
+                            delete ingredients[recipeId]
+                        }
+                        
+                        this.setState({ingredients})
+                    }}/>
+                </div>
+            </div>
+        )
     }
 
     render() {
@@ -85,12 +125,7 @@ class GroceryList extends React.Component {
                 ingredientsHTML.push(
                     <div className='grocery-list-recipe-category' key={-1}>
                         <h3>{this.state.recipes[-1]}</h3>
-                        {this.state.ingredients[-1].map(ingredient => (
-                            <div className='grocery-list-ingredient' key={ingredient.id}>
-                                <input id={`grocery-list-ingredient-${ingredient.id}`} type='checkbox' />
-                                <label htmlFor={`grocery-list-ingredient-${ingredient.id}`}>{ingredient.name}</label>
-                            </div>
-                        ))}
+                        {this.state.ingredients[-1].map(ingredient => this.ingredientHTML(-1, ingredient))}
                     </div>
                 )
             }
@@ -101,12 +136,7 @@ class GroceryList extends React.Component {
                     ingredientsHTML.push(
                         <div className='grocery-list-recipe-category' key={recipeId}>
                             <h3>{this.state.recipes[recipeId]}</h3>
-                            {ingredients.map(ingredient => (
-                                <div className='grocery-list-ingredient' key={ingredient.id}>
-                                    <input id={`grocery-list-ingredient-${ingredient.id}`} type='checkbox' />
-                                    <label htmlFor={`grocery-list-ingredient-${ingredient.id}`}>{ingredient.name}</label>
-                                </div>
-                            ))}
+                            {ingredients.map(ingredient => this.ingredientHTML(recipeId, ingredient))}
                         </div>
                     )
                 }
@@ -114,7 +144,7 @@ class GroceryList extends React.Component {
         }
 
         return (
-            <BoxWindow unmount={this.props.unmount} loading={this.state.loading}>
+            <BoxWindow className='grocery-list' unmount={this.props.unmount} loading={this.state.loading}>
                 
                 <h1>Grocery List</h1>
                 
@@ -128,12 +158,40 @@ class GroceryList extends React.Component {
                                 this.addIngredient(this.state.newIngredient)
                                 this.setState({newIngredient: ''})
                             }
-                        }}
-                        />
+                        }}/>
+
                         <button className='grocery-list-add-button' onClick={() => {
                             this.addIngredient(this.state.newIngredient)
                             this.setState({newIngredient: ''})
                         }}>+</button>
+
+                        <br />
+                        <button className='grocery-list-copy-button' onClick={() => {
+                            let text = ''
+
+                            for (const [recipeId, ingredients] of Object.entries(this.state.ingredients)) {
+                                text += this.state.recipes[recipeId] + '\n'
+                                text += '----------\n'
+
+                                ingredients.forEach(ingredient => text += ingredient.name + '\n')
+                                text += '\n\n'
+                            }
+
+                            text = text.trim()
+
+                            navigator.clipboard.writeText(text)
+
+                            if (!this.state.copyAsTextClickChange) {
+                                this.setState({copyAsTextClickChange: true})
+                                setTimeout(() => this.setState({copyAsTextClickChange: false}), 1000)
+                            }
+                        }}>
+                            {!this.state.copyAsTextClickChange ? 'Copy as Text' : 'Copied!'}
+                        </button>
+                        
+                        <button className='grocery-list-clear-button'>
+                            Delete All
+                        </button>
 
                         <div className='grocery-list-ingredients'>
                             {ingredientsHTML}

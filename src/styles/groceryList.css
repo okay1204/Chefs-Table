@@ -1,29 +1,28 @@
-.grocery-list-background {
-    background-color: rgba(0, 0, 0, 0.3);
-    position: fixed;
-    z-index: 9;
-    width: 100vw;
-    height: 100vh;
-
-    top: 0;
-    left: 0;
+.grocery-list {
+    padding-bottom: 20px;
 }
 
-.grocery-list {
-    background-color: var(--primary-background);
-    border: var(--primary-dark) solid 3px;
+.grocery-list label {
+    text-align: left;
+    user-select: text;
+}
+
+.grocery-list button {
+    margin: 10px;
+    font-size: 25px;
+    background-color: var(--primary-bright);
+    color: white;
+    padding: 10px;
     border-radius: 10px;
-    transition: all ease-in 200ms;
-    z-index: 10;
-    animation: zoomIn ease 250ms;
-    position: fixed;
-    left: 50px;
-    right: 50px;
-    top: 50px;
-    bottom: 50px;
     font-size: 20px;
-    overflow-y: scroll;
-    overflow-x: none;
+}
+
+.grocery-list button:hover {
+    opacity: 0.7;
+}
+
+.grocery-list h3 {
+    user-select: text;
 }
 
 .grocery-list-add-input {
@@ -32,16 +31,6 @@
     border-radius: 5px;
     width: 50%;
     font-family: 'Work Sans', sans-serif;
-}
-
-.grocery-list-add-button {
-    margin: 10px;
-    font-size: 25px;
-    background-color: var(--primary-bright);
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 20px;
 }
 
 .grocery-list-ingredient {
@@ -55,4 +44,28 @@
 
 .grocery-list-ingredient * {
     cursor: pointer;
+}
+
+.grocery-list-ingredient-delete img {
+    display: none;
+    position: absolute;
+    bottom: -19px;
+    width: 35px;
+    animation: fadeIn ease 150ms;
+}
+
+.grocery-list-ingredient:hover img {
+    display: block;
+}
+
+.grocery-list-ingredient-delete img:hover {
+    transform: scale(1.1);
+}
+
+.grocery-list-ingredient-delete {
+    position: relative;
+}
+
+.grocery-list-clear-button {
+    background-color: var(--red) !important
 }
