@@ -65,10 +65,6 @@ class WebScrape {
             case 'www.allrecipes.com':
                 result = this.allRecipes(url)
                 break
-            // case 'cdn2.greenchef.com':
-            // case 'www.greenchef.com':
-            //     result = this.greenChef(url)
-            //     break
 
             default:
                 throw new DomainUnsupportedError('Recipe domain not supported')
@@ -176,37 +172,6 @@ class WebScrape {
             servings
         }
     }
-
-    // static async greenChef(url) {
-
-    //     const parsedUrl = new Url(url)
-
-    //     if (parsedUrl.hostname === 'www.greenchef.com') {
-    //         const response = await this.getResponse(url)
-    //         const root = HTMLParser.parse(response.data)
-
-    //         let recipeCardLink = root
-    //         .querySelector('a.jsx-3718205992.jsx-2719391612.jsx-3844972933.jsx-2085888330.jsx-2085888330')
-    //         .attributes.href
-
-    //         recipeCardLink = recipeCardLink.replace('////', '//')
-    //         url = recipeCardLink
-    //     }
-        
-
-    //     const response = await this.getResponse(url, {
-    //         headers: {
-    //             'Content-Type': 'text/pdf'
-    //         }
-    //     })
-    //     const root = HTMLParser.parse(response.data)
-    
-    //     const fs = require('fs')
-    //     fs.writeFileSync('./test.pdf', response.data)
-
-    //     delete response.data
-    //     console.log(response)
-    // }
 }
 
 // WebScrape.getRecipeData('https://cooking.nytimes.com/recipes/1018131-braai-spiced-t-bone-steaks?action=click&module=Global%20Search%20Recipe%20Card&pgType=search&rank=16').then((result) => {
