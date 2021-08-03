@@ -191,7 +191,10 @@ const filterQuery = (get, filter, limit, offset) => {
     const queryArgs = []
 
     queryArgs.push(addBackslashes(filter.inputName))
-        
+    
+    // if inputProtein is '', then protein can be anything
+    // if inputProtein is null, then it must be null
+    // if inputProtein is an actual string, then filter for that string
     if (filter.inputProtein !== null) {
         queryArgs.push(addBackslashes(filter.inputProtein))
     }
@@ -227,7 +230,7 @@ const filterQuery = (get, filter, limit, offset) => {
         `SELECT ${get} FROM recipes WHERE
             ${searchLike('name')}
         AND
-            (${filter.inputProtein !== null ? searchLike('protein') + ' OR protein IS NULL' : 'protein IS NOT NULL'})
+            (${filter.inputProtein ? searchLike('protein') : filter.inputProtein === null ? 'protein IS NULL' : searchLike('protein') + ' OR protein IS NULL'})
         AND
             totalMinutes ${filter.inputTimeFilter ? '>=' : '<='} ?
         ${shouldHaveMeals.length > 0 ?
